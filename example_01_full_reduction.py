@@ -28,41 +28,46 @@ lhs6328_twodspec = spectral_reduction.TwoDSpec(lhs6328_frame,
 
 lhs6328_twodspec.ap_trace(nspec=2, display=False)
 
-lhs6328_twodspec.ap_extract(apwidth=15,
-                            skywidth=10,
-                            skydeg=1,
-                            optimal=True,
-                            display=False,
-                            filename='example_output/example_01_a_science_apextract',
-                            save_iframe=True)
+lhs6328_twodspec.ap_extract(
+    apwidth=15,
+    skywidth=10,
+    skydeg=1,
+    optimal=True,
+    display=False,
+    filename='example_output/example_01_a_science_apextract',
+    save_iframe=True)
 
-lhs6328_twodspec.ap_extract(apwidth=15,
-                            skywidth=10,
-                            skydeg=1,
-                            optimal=True,
-                            forced=True,
-                            variances=lhs6328_twodspec.spectrum_list[1].var,
-                            display=False,
-                            filename='example_output/example_01_a_science_apextract_forced_weighted',
-                            save_iframe=True)
+lhs6328_twodspec.ap_extract(
+    apwidth=15,
+    skywidth=10,
+    skydeg=1,
+    optimal=True,
+    forced=True,
+    variances=lhs6328_twodspec.spectrum_list[1].var,
+    display=False,
+    filename='example_output/example_01_a_science_apextract_forced_weighted',
+    save_iframe=True)
 
-lhs6328_twodspec.ap_extract(apwidth=15,
-                            skywidth=10,
-                            skydeg=1,
-                            optimal=False,
-                            display=False,
-                            filename='example_output/example_01_a_science_apextract_tophat',
-                            save_iframe=True)
+lhs6328_twodspec.ap_extract(
+    apwidth=15,
+    skywidth=10,
+    skydeg=1,
+    optimal=False,
+    display=False,
+    filename='example_output/example_01_a_science_apextract_tophat',
+    save_iframe=True)
 
-lhs6328_twodspec.ap_extract(apwidth=15,
-                            skywidth=10,
-                            skydeg=1,
-                            optimal=True,
-                            forced=True,
-                            variances=1000000.,
-                            display=False,
-                            filename='example_output/example_01_a_science_apextract_forced_unit_weighted',
-                            save_iframe=True)
+lhs6328_twodspec.ap_extract(
+    apwidth=15,
+    skywidth=10,
+    skydeg=1,
+    optimal=True,
+    forced=True,
+    variances=1000000.,
+    display=False,
+    filename=
+    'example_output/example_01_a_science_apextract_forced_unit_weighted',
+    save_iframe=True)
 #lhs6328_twodspec.save_fits(
 #    filename='example_output/example_01_a_science_traces', overwrite=True)
 
@@ -76,14 +81,15 @@ hilt102_twodspec = spectral_reduction.TwoDSpec(standard_frame,
 
 hilt102_twodspec.ap_trace(nspec=1, resample_factor=10, display=False)
 
-hilt102_twodspec.ap_extract(apwidth=15,
-                            skysep=3,
-                            skywidth=5,
-                            skydeg=1,
-                            optimal=True,
-                            display=False,
-                            filename='example_output/example_01_a_standard_apextract',
-                            save_iframe=True)
+hilt102_twodspec.ap_extract(
+    apwidth=15,
+    skysep=3,
+    skywidth=5,
+    skydeg=1,
+    optimal=True,
+    display=False,
+    filename='example_output/example_01_a_standard_apextract',
+    save_iframe=True)
 
 #hilt102_twodspec.save_fits(
 #    filename='example_output/example_01_a_standard_trace', overwrite=True)
@@ -104,19 +110,23 @@ lhs6328_onedspec.extract_arc_spec(display=False, stype='science+standard')
 lhs6328_onedspec.find_arc_lines(display=False, stype='science+standard')
 
 # Configure the wavelength calibrator
-lhs6328_onedspec.initialise_calibrator(min_wavelength=3500,
-                                       max_wavelength=8000,
+lhs6328_onedspec.initialise_calibrator(stype='science+standard')
+lhs6328_onedspec.set_hough_properties(num_slopes=500,
+                                      xbins=100,
+                                      ybins=100,
+                                      min_wavelength=3500,
+                                      max_wavelength=8000,
+                                      stype='science+standard')
+lhs6328_onedspec.set_ransac_properties(filter_close=True,
                                        stype='science+standard')
-lhs6328_onedspec.set_fit_constraints(stype='science+standard', num_slopes=500)
 
 lhs6328_onedspec.load_user_atlas(elements=element,
                                  wavelengths=atlas,
                                  stype='science+standard')
+lhs6328_onedspec.do_hough_transform()
 
 # Solve for the pixel-to-wavelength solution
-lhs6328_onedspec.fit(stype='science+standard', display=False)
-lhs6328_onedspec.refine_fit(n_delta=2, display=False, stype='science+standard')
-lhs6328_onedspec.refine_fit(display=False, stype='science+standard')
+lhs6328_onedspec.fit(max_tries=50, stype='science+standard', display=False)
 
 # Apply the wavelength calibration and display it
 lhs6328_onedspec.apply_wavelength_calibration(stype='science+standard')
@@ -128,15 +138,19 @@ lhs6328_onedspec.load_standard(target='hiltner102')
 #lhs6328_onedspec.inspect_standard()
 
 lhs6328_onedspec.compute_sensitivity(kind='cubic', mask_fit_size=1)
-lhs6328_onedspec.inspect_sensitivity()
+'''lhs6328_onedspec.inspect_sensitivity()'''
 
 lhs6328_onedspec.apply_flux_calibration(stype='science+standard')
-
-lhs6328_onedspec.inspect_reduced_spectrum(stype='science', save_iframe=True,
-                            filename='example_output/example_01_a_science_spectrum')
-lhs6328_onedspec.inspect_reduced_spectrum(stype='standard', save_iframe=True,
-                            filename='example_output/example_01_a_standard_spectrum')
-
+'''
+lhs6328_onedspec.inspect_reduced_spectrum(
+    stype='science',
+    save_iframe=True,
+    filename='example_output/example_01_a_science_spectrum')
+lhs6328_onedspec.inspect_reduced_spectrum(
+    stype='standard',
+    save_iframe=True,
+    filename='example_output/example_01_a_standard_spectrum')
+'''
 # Save as FITS
 lhs6328_onedspec.save_fits(
     output='flux_resampled+wavecal+flux+count',
@@ -155,6 +169,12 @@ lhs6328_onedspec.save_csv(
 #
 # Extract one spectrum
 #
+
+# Clear memory
+lhs6328_frame = None
+lhs6328_twodspec = None
+lhs6328_onedspec = None
+
 lhs6328_frame = image_reduction.ImageReduction('sprat_LHS6328.list')
 lhs6328_frame.reduce()
 
@@ -186,19 +206,23 @@ lhs6328_onedspec.extract_arc_spec(display=False, stype='science+standard')
 lhs6328_onedspec.find_arc_lines(display=False, stype='science+standard')
 
 # Configure the wavelength calibrator
-lhs6328_onedspec.initialise_calibrator(min_wavelength=3500,
-                                       max_wavelength=8000,
+lhs6328_onedspec.initialise_calibrator(stype='science+standard')
+lhs6328_onedspec.set_hough_properties(num_slopes=500,
+                                      xbins=100,
+                                      ybins=100,
+                                      min_wavelength=3500,
+                                      max_wavelength=8000,
+                                      stype='science+standard')
+lhs6328_onedspec.set_ransac_properties(filter_close=True,
                                        stype='science+standard')
-lhs6328_onedspec.set_fit_constraints(stype='science+standard')
 
 lhs6328_onedspec.load_user_atlas(elements=element,
                                  wavelengths=atlas,
                                  stype='science+standard')
+lhs6328_onedspec.do_hough_transform()
 
 # Solve for the pixel-to-wavelength solution
-lhs6328_onedspec.fit(stype='science+standard')
-lhs6328_onedspec.refine_fit(n_delta=2, display=False, stype='science+standard')
-lhs6328_onedspec.refine_fit(display=False, stype='science+standard')
+lhs6328_onedspec.fit(max_tries=50, stype='science+standard')
 
 # Apply the wavelength calibration and display it
 lhs6328_onedspec.apply_wavelength_calibration(stype='science+standard')
