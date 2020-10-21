@@ -24,7 +24,7 @@ lhs6328_onedspec.add_spec(hilt102_fits.data[0], stype='standard')
 lhs6328_onedspec.add_wavelength(wave, stype='science')
 lhs6328_onedspec.add_wavelength(wave, stype='standard')
 
-lhs6328_onedspec.load_standard(target='hiltner102', display=False)
+lhs6328_onedspec.load_standard(target='hiltner102')
 lhs6328_onedspec.compute_sensitivity()
 lhs6328_onedspec.apply_flux_calibration(stype='science+standard')
 
@@ -33,7 +33,7 @@ lhs6328_onedspec.inspect_reduced_spectrum(stype='science+standard')
 
 # Save as a FITS file
 lhs6328_onedspec.save_fits(
-    output='flux+wavecal+fluxraw',
+    output='flux+wavecal+flux_resampled',
     filename='example_output/example_10_user_supplied_wavelength_calibrated_science_and_standard_1D_spectra',
     stype='science',
     overwrite=True)

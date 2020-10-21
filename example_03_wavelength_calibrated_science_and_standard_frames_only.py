@@ -36,8 +36,8 @@ hilt102.ap_extract(apwidth=15, optimal=True, skywidth=10, display=False)
 
 # Calibrate the 1D spectra
 lhs6328_onedspec = spectral_reduction.OneDSpec()
-lhs6328_onedspec.add_twodspec(lhs6328, stype='science')
-lhs6328_onedspec.add_twodspec(hilt102, stype='standard')
+lhs6328_onedspec.from_twodspec(lhs6328, stype='science')
+lhs6328_onedspec.from_twodspec(hilt102, stype='standard')
 
 # Note that there are two science traces, so two wavelengths have to be
 # supplied by in a list
@@ -45,7 +45,7 @@ lhs6328_onedspec.add_wavelength([wave, wave], stype='science')
 lhs6328_onedspec.add_wavelength(wave, stype='standard')
 
 # Get the standard flux from literature
-lhs6328_onedspec.load_standard(target='hiltner102', display=False)
+lhs6328_onedspec.load_standard(target='hiltner102')
 
 lhs6328_onedspec.compute_sensitivity(kind='cubic')
 lhs6328_onedspec.inspect_sensitivity()
@@ -56,7 +56,7 @@ lhs6328_onedspec.inspect_reduced_spectrum(stype='science')
 
 # Save as a FITS file
 lhs6328_onedspec.save_fits(
-    output='flux+wavecal+adu',
+    output='flux+wavecal+count',
     filename='example_output/example_03_wavelength_calibrated_science_and_'
     'standard_frames_only',
     stype='science',

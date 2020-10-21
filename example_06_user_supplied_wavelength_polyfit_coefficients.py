@@ -21,9 +21,9 @@ lhs6328.ap_extract(apwidth=10, optimal=True, skywidth=10, display=False)
 
 # Calibrate the 1D spectra
 lhs6328_onedspec = spectral_reduction.OneDSpec()
-lhs6328_onedspec.add_twodspec(lhs6328, stype='science')
+lhs6328_onedspec.from_twodspec(lhs6328, stype='science')
 
-polyfit_coeff = [
+fit_coeff = [
     np.array([
         3.09833375e+03, 5.98842823e+00, -2.83963934e-03, 2.84842392e-06,
         -1.03725267e-09
@@ -33,13 +33,13 @@ polyfit_coeff = [
         -1.12035864e-09
     ])
 ]
-polyfit_type = ['poly', 'poly']
+fit_type = ['poly', 'poly']
 
 # Note that there are two science traces, so two polyfit coefficients have to
 # be supplied by in a list
-lhs6328_onedspec.add_polyfit(polyfit_coeff,
-                             polyfit_type=polyfit_type,
-                             stype='science')
+lhs6328_onedspec.add_fit_coeff(fit_coeff,
+                               fit_type=fit_type,
+                               stype='science')
 lhs6328_onedspec.apply_wavelength_calibration(stype='science')
 
 # Inspect reduced spectrum
@@ -47,7 +47,7 @@ lhs6328_onedspec.inspect_reduced_spectrum(stype='science')
 
 # Save as a FITS file
 lhs6328_onedspec.save_fits(
-    output='wavecal+adu',
+    output='wavecal+count',
     filename=
     'example_output/example_06_user_supplied_wavelength_polyfit_coefficients',
     stype='science',

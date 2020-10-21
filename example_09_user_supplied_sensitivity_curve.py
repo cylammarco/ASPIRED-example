@@ -3,11 +3,21 @@ from astropy.io import fits
 from aspired import spectral_reduction
 from scipy import interpolate as itp
 
+# Note that the multiple extension of v_s_20180810_27_1_0_2.fits.gz are:
+# 0: raw image
+# 1: processed image
+# 2: extracted non-sky-subtracted count
+# 3: sky-subtracted #2
+# 4: spectral response corrected #3
+# 5: flux calibrated #4
+
 # Load the Wavelength calibrated 1D spectral image of Hiltner 102
+# Using HDU #3
 hilt102_fits = fits.open(
     'sprat_LHS6328_Hiltner102_raw/v_s_20180810_27_1_0_2.fits.gz')[3]
 
 # Get the sensitivity curve from the pre-calibrated data
+# Dividing HDU #5 by #3
 calibrated_data = fits.open(
     'sprat_LHS6328_Hiltner102_raw/v_e_20180810_12_1_0_2.fits.gz')
 sensitivity = calibrated_data[5].data[0] / calibrated_data[3].data[0] *\
@@ -27,13 +37,14 @@ hilt102_onedspec = spectral_reduction.OneDSpec()
 
 # Note that there are two science traces, so two wavelengths have to be
 # supplied by in a list
+# Continue using the non-flux calibrated HDU #3
 hilt102_onedspec.add_spec(hilt102_fits.data[0], stype='standard')
 hilt102_onedspec.add_wavelength(wave, stype='standard')
 hilt102_onedspec.add_sensitivity_itp(sensitivity_itp)
 
 hilt102_onedspec.apply_flux_calibration(stype='standard')
 
-hilt102_onedspec.load_standard(target='hiltner102', display=False)
+hilt102_onedspec.load_standard(target='hiltner102')
 
 # Inspect reduced spectrum
 hilt102_onedspec.inspect_reduced_spectrum(stype='standard')

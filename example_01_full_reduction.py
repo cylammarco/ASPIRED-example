@@ -153,14 +153,14 @@ lhs6328_onedspec.inspect_reduced_spectrum(
 '''
 # Save as FITS
 lhs6328_onedspec.save_fits(
-    output='flux_resampled+wavecal+flux+count',
+    output='flux_resampled+wavecal+flux+count+trace',
     filename='example_output/example_01_a_full_reduction',
     stype='science+standard',
     overwrite=True)
 
 # save as CSV
 lhs6328_onedspec.save_csv(
-    output='flux_resampled+wavecal+flux+count',
+    output='flux_resampled+wavecal+flux+count+trace',
     filename='example_output/example_01_a_full_reduction',
     stype='science+standard',
     overwrite=True)
