@@ -30,5 +30,4 @@ lhs6328_onedspec.extract_arc_spec(display=True, stype='science')
 # Find the peaks of the arc
 lhs6328_onedspec.find_arc_lines(display=True, stype='science')
 
-lhs6328_onedspec.wavecal_science.save_fits(output='arc_spec', filename='example_output/example_05_arcspec_1')
-
+lhs6328_onedspec.wavecal_science.save_fits(output='arc_spec', filename='example_output/example_05_arcspec_1', overwrite=True)
