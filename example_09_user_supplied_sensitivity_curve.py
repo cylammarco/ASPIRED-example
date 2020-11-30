@@ -30,7 +30,9 @@ wave_end = wave_start + (hilt102_fits.header['NAXIS1'] - 1) * wave_bin
 wave = np.linspace(wave_start, wave_end, hilt102_fits.header['NAXIS1'])
 
 # interpolate the senstivity curve with wavelength
-sensitivity_itp = itp.interp1d(wave, np.log10(sensitivity), fill_value='extrapolate')
+sensitivity_func = itp.interp1d(wave,
+                                np.log10(sensitivity),
+                                fill_value='extrapolate')
 
 # Calibrate the 1D spectra
 hilt102_onedspec = spectral_reduction.OneDSpec()
@@ -40,7 +42,7 @@ hilt102_onedspec = spectral_reduction.OneDSpec()
 # Continue using the non-flux calibrated HDU #3
 hilt102_onedspec.add_spec(hilt102_fits.data[0], stype='standard')
 hilt102_onedspec.add_wavelength(wave, stype='standard')
-hilt102_onedspec.add_sensitivity_itp(sensitivity_itp)
+hilt102_onedspec.add_sensitivity_func(sensitivity_func)
 
 hilt102_onedspec.apply_flux_calibration(stype='standard')
 

@@ -46,6 +46,7 @@ lhs6328_onedspec.set_hough_properties(num_slopes=500,
                                       ybins=100,
                                       min_wavelength=3500,
                                       max_wavelength=8000)
+lhs6328_onedspec.set_ransac_properties()
 lhs6328_onedspec.load_user_atlas(wavelengths=atlas,
                                  elements=element,
                                  stype='science')

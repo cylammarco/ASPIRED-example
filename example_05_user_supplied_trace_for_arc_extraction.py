@@ -1,7 +1,6 @@
 from astropy.io import fits
 from aspired import spectral_reduction
 
-
 # Load the image
 arc_fits = fits.open(
     'sprat_LHS6328_Hiltner102_raw/v_a_20180810_13_1_0_1.fits.gz')[0]
@@ -30,4 +29,7 @@ lhs6328_onedspec.extract_arc_spec(display=True, stype='science')
 # Find the peaks of the arc
 lhs6328_onedspec.find_arc_lines(display=True, stype='science')
 
-lhs6328_onedspec.wavecal_science.save_fits(output='arc_spec', filename='example_output/example_05_arcspec_1', overwrite=True)
+lhs6328_onedspec.wavecal_science.save_fits(
+    output='arc_spec',
+    filename='example_output/example_05_arcspec_1',
+    overwrite=True)

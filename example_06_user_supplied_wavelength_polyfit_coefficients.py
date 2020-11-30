@@ -37,9 +37,7 @@ fit_type = ['poly', 'poly']
 
 # Note that there are two science traces, so two polyfit coefficients have to
 # be supplied by in a list
-lhs6328_onedspec.add_fit_coeff(fit_coeff,
-                               fit_type=fit_type,
-                               stype='science')
+lhs6328_onedspec.add_fit_coeff(fit_coeff, fit_type=fit_type, stype='science')
 lhs6328_onedspec.apply_wavelength_calibration(stype='science')
 
 # Inspect reduced spectrum

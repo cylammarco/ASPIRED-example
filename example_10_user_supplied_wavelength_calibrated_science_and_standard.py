@@ -1,11 +1,12 @@
 import numpy as np
 from astropy.io import fits
 from aspired import spectral_reduction
-from scipy import interpolate as itp
 
 # Load the wavelength calibrated and resampled 1D spectra
-lhs6328_fits = fits.open('sprat_LHS6328_Hiltner102_raw/v_e_20180810_12_1_0_2.fits.gz')[3]
-hilt102_fits = fits.open('sprat_LHS6328_Hiltner102_raw/v_s_20180810_27_1_0_2.fits.gz')[3]
+lhs6328_fits = fits.open(
+    'sprat_LHS6328_Hiltner102_raw/v_e_20180810_12_1_0_2.fits.gz')[3]
+hilt102_fits = fits.open(
+    'sprat_LHS6328_Hiltner102_raw/v_s_20180810_27_1_0_2.fits.gz')[3]
 
 # Get the wavelength
 wave_bin = hilt102_fits.header['CDELT1']
@@ -34,6 +35,7 @@ lhs6328_onedspec.inspect_reduced_spectrum(stype='science+standard')
 # Save as a FITS file
 lhs6328_onedspec.save_fits(
     output='flux+wavecal+flux_resampled',
-    filename='example_output/example_10_user_supplied_wavelength_calibrated_science_and_standard_1D_spectra',
+    filename=
+    'example_output/example_10_user_supplied_wavelength_calibrated_science_and_standard_1D_spectra',
     stype='science',
     overwrite=True)

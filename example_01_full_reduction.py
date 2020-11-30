@@ -1,7 +1,5 @@
-from astropy.io import fits
 from aspired import image_reduction
 from aspired import spectral_reduction
-import numpy as np
 
 # Line list
 atlas = [
@@ -23,6 +21,10 @@ lhs6328_frame.reduce()
 lhs6328_frame.inspect(
     filename='example_output/example_01_a_science_image',
     save_iframe=True)
+lhs6328_frame.save_fits(
+    filename='example_output/example_01_a_science_image',
+    overwrite=True
+)
 
 lhs6328_twodspec = spectral_reduction.TwoDSpec(lhs6328_frame,
                                                cosmicray=True,
@@ -85,6 +87,10 @@ standard_frame.reduce()
 standard_frame.inspect(
     filename='example_output/example_01_a_standard_image',
     save_iframe=True)
+standard_frame.save_fits(
+    filename='example_output/example_01_a_standard_image',
+    overwrite=True
+)
 
 hilt102_twodspec = spectral_reduction.TwoDSpec(standard_frame,
                                                cosmicray=True,
@@ -165,7 +171,7 @@ lhs6328_onedspec.inspect_standard(
     save_iframe=True,
     filename='example_output/example_01_a_literature_standard')
 
-lhs6328_onedspec.compute_sensitivity(kind='cubic', mask_fit_size=1)
+lhs6328_onedspec.compute_sensitivity(k=3, mask_fit_size=1)
 lhs6328_onedspec.inspect_sensitivity(
     save_iframe=True,
     filename='example_output/example_01_a_sensitivity')

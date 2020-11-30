@@ -1,5 +1,3 @@
-import numpy as np
-
 from astropy.io import fits
 from aspired import spectral_reduction
 
@@ -17,7 +15,8 @@ lhs6328_trace_sigma = lhs6328_extracted[2].data
 
 lhs6328 = spectral_reduction.TwoDSpec(lhs6328_fits, readnoise=2.34)
 
-# Adding the trace and the line spread function (sigma) to the TwoDSpec object
+# Adding the trace and the line spread function (sigma) to the TwoDSpec
+# object
 lhs6328.add_trace(trace=lhs6328_trace, trace_sigma=lhs6328_trace_sigma)
 
 lhs6328.ap_extract(apwidth=15,
@@ -28,6 +27,5 @@ lhs6328.ap_extract(apwidth=15,
 
 lhs6328.save_fits(
     output='count',
-    filename=
-    'example_output/example_04_user_supplied_trace_for_spectral_extraction',
+    filename='example_output/example_04_user_supplied_trace_for_spectral_extraction',
     overwrite=True)
