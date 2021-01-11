@@ -41,7 +41,9 @@ hilt102_onedspec = spectral_reduction.OneDSpec()
 # supplied by in a list
 # Continue using the non-flux calibrated HDU #3
 hilt102_onedspec.add_spec(hilt102_fits.data[0], stype='standard')
+hilt102_onedspec.add_spec(hilt102_fits.data[0], stype='standard')
 hilt102_onedspec.add_wavelength(wave, stype='standard')
+hilt102_onedspec.add_wavelength_resampled(wave, stype='standard')
 hilt102_onedspec.add_sensitivity_func(sensitivity_func)
 
 hilt102_onedspec.apply_flux_calibration(stype='standard')

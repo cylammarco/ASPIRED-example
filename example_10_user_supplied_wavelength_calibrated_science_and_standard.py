@@ -21,13 +21,19 @@ lhs6328_onedspec = spectral_reduction.OneDSpec()
 # Note that there are two science traces, so two wavelengths have to be
 # supplied by in a list
 lhs6328_onedspec.add_spec(lhs6328_fits.data[0], stype='science')
-lhs6328_onedspec.add_spec(hilt102_fits.data[0], stype='standard')
 lhs6328_onedspec.add_wavelength(wave, stype='science')
+lhs6328_onedspec.add_wavelength_resampled(wave, stype='science')
+
+lhs6328_onedspec.add_spec(hilt102_fits.data[0], stype='standard')
 lhs6328_onedspec.add_wavelength(wave, stype='standard')
+lhs6328_onedspec.add_wavelength_resampled(wave, stype='standard')
 
 lhs6328_onedspec.load_standard(target='hiltner102')
 lhs6328_onedspec.compute_sensitivity()
 lhs6328_onedspec.apply_flux_calibration(stype='science+standard')
+
+lhs6328_onedspec.apply_flux_calibration(stype='science+standard')
+
 
 # Inspect reduced spectrum
 lhs6328_onedspec.inspect_reduced_spectrum(stype='science+standard')

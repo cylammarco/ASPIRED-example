@@ -41,8 +41,8 @@ lhs6328_onedspec.from_twodspec(hilt102, stype='standard')
 
 # Note that there are two science traces, so two wavelengths have to be
 # supplied by in a list
-lhs6328_onedspec.add_wavelength([wave, wave], stype='science')
-lhs6328_onedspec.add_wavelength(wave, stype='standard')
+lhs6328_onedspec.add_wavelength(wave, stype='science+standard')
+lhs6328_onedspec.add_wavelength_resampled(wave, stype='science+standard')
 
 # Get the standard flux from literature
 lhs6328_onedspec.load_standard(target='hiltner102')

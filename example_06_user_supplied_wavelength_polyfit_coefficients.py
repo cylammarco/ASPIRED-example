@@ -5,11 +5,15 @@ from aspired import spectral_reduction
 # Load the image
 lhs6328_fits = fits.open(
     'sprat_LHS6328_Hiltner102_raw/v_e_20180810_12_1_0_0.fits.gz')[0]
+spatial_mask = np.arange(60, 200)
+spec_mask = np.arange(50, 1024)
 
 #
 # Loading two pre-saved spectral traces from a single FITS file.
 #
 lhs6328 = spectral_reduction.TwoDSpec(lhs6328_fits,
+                                      spatial_mask=spatial_mask,
+                                      spec_mask=spec_mask,
                                       cosmicray=True,
                                       readnoise=2.34)
 
@@ -23,17 +27,11 @@ lhs6328.ap_extract(apwidth=10, optimal=True, skywidth=10, display=False)
 lhs6328_onedspec = spectral_reduction.OneDSpec()
 lhs6328_onedspec.from_twodspec(lhs6328, stype='science')
 
-fit_coeff = [
-    np.array([
+fit_coeff =np.array([
         3.09833375e+03, 5.98842823e+00, -2.83963934e-03, 2.84842392e-06,
         -1.03725267e-09
-    ]),
-    np.array([
-        3.29975984e+03, 5.19493289e+00, -1.87830053e-03, 2.55978647e-06,
-        -1.12035864e-09
     ])
-]
-fit_type = ['poly', 'poly']
+fit_type = 'poly'
 
 # Note that there are two science traces, so two polyfit coefficients have to
 # be supplied by in a list

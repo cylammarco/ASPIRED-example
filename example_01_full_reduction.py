@@ -12,7 +12,7 @@ atlas = [
 ]
 element = ['Xe'] * len(atlas)
 
-spatial_mask = np.arange(70, 200)
+spatial_mask = np.arange(60, 200)
 spec_mask = np.arange(50, 1024)
 
 #

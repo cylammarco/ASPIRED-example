@@ -1,5 +1,6 @@
 from astropy.io import fits
 from aspired import spectral_reduction
+import numpy as np
 
 # Line list
 atlas = [
@@ -10,6 +11,9 @@ atlas = [
     7967.34, 8057.258
 ]
 element = ['Xe'] * len(atlas)
+
+spatial_mask = np.arange(60, 200)
+spec_mask = np.arange(50, 1024)
 
 # Load the arc
 arc_fits = fits.open(
@@ -24,23 +28,27 @@ lhs6328_trace = lhs6328_extracted[1].data
 lhs6328_trace_sigma = lhs6328_extracted[2].data
 lhs6328_adu = lhs6328_extracted[3].data
 
-lhs6328_onedspec = spectral_reduction.OneDSpec()
+lhs6328_twodspec = spectral_reduction.TwoDSpec(spatial_mask=spatial_mask,
+                                               spec_mask=spec_mask)
 
 # Add a 2D arc image
-lhs6328_onedspec.add_arc(arc_fits, stype='science')
+lhs6328_twodspec.add_arc(arc_fits)
+lhs6328_twodspec.apply_twodspec_mask_to_arc()
 
 # Add the trace and the line spread function (sigma) to the 2D arc image
-lhs6328_onedspec.add_trace(lhs6328_trace, lhs6328_trace_sigma, stype='science')
+lhs6328_twodspec.add_trace(lhs6328_trace, lhs6328_trace_sigma)
 
 # Extract the 1D arc by aperture sum of the traces provided
-lhs6328_onedspec.extract_arc_spec(display=False, stype='science')
+lhs6328_twodspec.extract_arc_spec(display=False)
+
+lhs6328_onedspec = spectral_reduction.OneDSpec()
+lhs6328_onedspec.from_twodspec(lhs6328_twodspec)
 
 # Find the peaks of the arc
 lhs6328_onedspec.find_arc_lines(display=False, stype='science')
 
 # Configure the wavelength calibrator
 lhs6328_onedspec.initialise_calibrator()
-lhs6328_onedspec.set_calibrator_properties(stype='science')
 lhs6328_onedspec.set_hough_properties(num_slopes=500,
                                       xbins=100,
                                       ybins=100,
