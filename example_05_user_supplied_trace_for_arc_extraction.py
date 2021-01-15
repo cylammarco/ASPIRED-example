@@ -41,4 +41,5 @@ lhs6328_onedspec.find_arc_lines(display=True, stype='science')
 
 lhs6328_onedspec.save_fits(output='arc_spec',
                            filename='example_output/example_05_arcspec_1',
+                           stype='science',
                            overwrite=True)
