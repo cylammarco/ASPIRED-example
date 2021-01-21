@@ -5,7 +5,7 @@ from aspired import spectral_reduction
 # Load the image
 lhs6328_fits = fits.open(
     'sprat_LHS6328_Hiltner102_raw/v_e_20180810_12_1_0_0.fits.gz')[0]
-spatial_mask = np.arange(60, 200)
+spatial_mask = np.arange(50, 200)
 spec_mask = np.arange(50, 1024)
 
 #
@@ -35,7 +35,7 @@ fit_type = 'poly'
 
 # Note that there are two science traces, so two polyfit coefficients have to
 # be supplied by in a list
-lhs6328_onedspec.add_fit_coeff(fit_coeff, fit_type=fit_type, stype='science')
+lhs6328_onedspec.add_fit_coeff(fit_coeff, fit_type, stype='science')
 lhs6328_onedspec.apply_wavelength_calibration(stype='science')
 
 # Inspect reduced spectrum

@@ -12,7 +12,7 @@ atlas = [
 ]
 element = ['Xe'] * len(atlas)
 
-spatial_mask = np.arange(60, 200)
+spatial_mask = np.arange(50, 220)
 spec_mask = np.arange(50, 1024)
 
 #
@@ -187,6 +187,10 @@ lhs6328_onedspec.inspect_sensitivity(
     save_iframe=True, filename='example_output/example_01_a_sensitivity')
 
 lhs6328_onedspec.apply_flux_calibration(stype='science+standard')
+
+# Apply atmospheric extinction correction
+lhs6328_onedspec.set_atmospheric_extinction(location='orm')
+lhs6328_onedspec.apply_atmospheric_extinction_correction()
 
 # Create FITS
 lhs6328_onedspec.create_fits(output='trace+count')

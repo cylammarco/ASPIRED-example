@@ -6,7 +6,7 @@ import numpy as np
 arc_fits = fits.open(
     'sprat_LHS6328_Hiltner102_raw/v_a_20180810_13_1_0_1.fits.gz')[0]
 
-spatial_mask = np.arange(60, 200)
+spatial_mask = np.arange(50, 200)
 spec_mask = np.arange(50, 1024)
 
 #

@@ -12,7 +12,7 @@ atlas = [
 ]
 element = ['Xe'] * len(atlas)
 
-spatial_mask = np.arange(60, 200)
+spatial_mask = np.arange(50, 200)
 spec_mask = np.arange(50, 1024)
 
 # Load the arc
@@ -72,7 +72,7 @@ lhs6328_onedspec.inspect_reduced_spectrum(stype='science')
 
 # Save as a FITS file
 lhs6328_onedspec.save_fits(
-    output='flux+wavecal+count',
+    output='wavecal+count',
     filename='example_output/example_02_wavelength_calibrated_spectrum',
     stype='science',
     overwrite=True)
