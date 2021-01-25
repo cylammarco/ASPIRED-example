@@ -39,7 +39,7 @@ lhs6328_onedspec.add_fit_coeff(fit_coeff, fit_type, stype='science')
 lhs6328_onedspec.apply_wavelength_calibration(stype='science')
 
 # Inspect reduced spectrum
-lhs6328_onedspec.inspect_reduced_spectrum(stype='science')
+lhs6328_onedspec.inspect_reduced_spectrum(display=False, stype='science')
 
 # Save as a FITS file
 lhs6328_onedspec.save_fits(

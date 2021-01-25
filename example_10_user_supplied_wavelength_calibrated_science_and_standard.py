@@ -34,14 +34,14 @@ lhs6328_onedspec.apply_flux_calibration(stype='science+standard')
 
 lhs6328_onedspec.apply_flux_calibration(stype='science+standard')
 
-
 # Inspect reduced spectrum
-lhs6328_onedspec.inspect_reduced_spectrum(stype='science+standard')
+lhs6328_onedspec.inspect_reduced_spectrum(display=False,
+                                          stype='science+standard')
 
 # Save as a FITS file
 lhs6328_onedspec.save_fits(
     output='flux+wavecal+flux_resampled',
-    filename=
-    'example_output/example_10_user_supplied_wavelength_calibrated_science_and_standard_1D_spectra',
+    filename='example_output/example_10_user_supplied_wavelength_calibrated'
+    '_science_and_standard_1D_spectra',
     stype='science',
     overwrite=True)
