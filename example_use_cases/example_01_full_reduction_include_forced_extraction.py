@@ -35,6 +35,8 @@ lhs6328_twodspec = spectral_reduction.TwoDSpec(lhs6328_frame,
                                                spec_mask=spec_mask,
                                                cosmicray=True,
                                                readnoise=5.7,
+                                               sigclip=3.0,
+                                               cleantype='medianmask',
                                                log_file_name=None,
                                                log_level='INFO')
 
@@ -62,7 +64,7 @@ lhs6328_twodspec.ap_extract(
     optimal=True,
     forced=True,
     variances=lhs6328_twodspec.spectrum_list[1].var,
-    display=False,
+    display=True,
     filename='example_output/example_01_a_science_apextract_forced_weighted',
     save_iframe=True)
 
@@ -171,7 +173,7 @@ lhs6328_onedspec.add_user_atlas(elements=elements,
 lhs6328_onedspec.do_hough_transform()
 
 # Solve for the pixel-to-wavelength solution
-lhs6328_onedspec.fit(max_tries=300, stype='science+standard', display=False)
+lhs6328_onedspec.fit(max_tries=500, stype='science+standard', display=False)
 
 # Apply the wavelength calibration and display it
 lhs6328_onedspec.apply_wavelength_calibration(stype='science+standard')

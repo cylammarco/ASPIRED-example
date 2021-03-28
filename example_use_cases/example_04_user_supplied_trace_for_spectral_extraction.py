@@ -31,6 +31,7 @@ lhs6328_twodspec.ap_extract(apwidth=15,
                             optimal=True,
                             skywidth=10,
                             skydeg=1,
+                            cosmicray_sigma=3.0,
                             display=True)
 
 lhs6328_twodspec.save_fits(

@@ -17,7 +17,8 @@ spec_mask = np.arange(50, 1024)
 
 # Load the arc
 arc_fits = fits.open(
-    'example_use_cases/sprat_LHS6328_Hiltner102_raw/v_a_20180810_13_1_0_1.fits.gz')[0]
+    'example_use_cases/sprat_LHS6328_Hiltner102_raw/v_a_20180810_13_1_0_1.fits.gz'
+)[0]
 
 #
 # Loading pre-saved spectral traces from a single FITS file.
@@ -55,8 +56,8 @@ lhs6328_onedspec.set_hough_properties(num_slopes=500,
                                       min_wavelength=3500,
                                       max_wavelength=8000)
 lhs6328_onedspec.add_user_atlas(wavelengths=atlas,
-                                 elements=element,
-                                 stype='science')
+                                elements=element,
+                                stype='science')
 lhs6328_onedspec.set_ransac_properties()
 lhs6328_onedspec.do_hough_transform()
 
