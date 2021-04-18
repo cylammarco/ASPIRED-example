@@ -35,8 +35,13 @@ lhs6328_twodspec = spectral_reduction.TwoDSpec(lhs6328_frame,
                                                spec_mask=spec_mask,
                                                cosmicray=True,
                                                readnoise=5.7,
-                                               sigclip=3.0,
-                                               cleantype='medianmask',
+                                               gain=2.45,
+                                               sigclip=0.1,
+                                               psfsize=11.0,
+                                               psffwhm=1.5,
+                                               psfmodel='gaussy',
+                                               fsmode='convolve',
+                                               cleantype='medmask',
                                                log_file_name=None,
                                                log_level='INFO')
 
@@ -108,7 +113,9 @@ hilt102_twodspec = spectral_reduction.TwoDSpec(standard_frame,
                                                spatial_mask=spatial_mask,
                                                spec_mask=spec_mask,
                                                readnoise=5.7,
-                                               log_file_name=None)
+                                               gain=2.6,
+                                               log_file_name=None,
+                                               log_level='INFO')
 
 hilt102_twodspec.ap_trace(
     nspec=1,
@@ -142,7 +149,8 @@ hilt102_twodspec.extract_arc_spec(
     save_iframe=True)
 
 # Handle 1D Science spectrum
-lhs6328_onedspec = spectral_reduction.OneDSpec(log_file_name=None)
+lhs6328_onedspec = spectral_reduction.OneDSpec(log_file_name=None,
+                                               log_level='INFO')
 lhs6328_onedspec.from_twodspec(lhs6328_twodspec, stype='science')
 lhs6328_onedspec.from_twodspec(hilt102_twodspec, stype='standard')
 
@@ -160,7 +168,7 @@ lhs6328_onedspec.set_hough_properties(num_slopes=500,
                                       xbins=100,
                                       ybins=100,
                                       min_wavelength=3500,
-                                      max_wavelength=8000,
+                                      max_wavelength=8200,
                                       stype='science+standard')
 
 lhs6328_onedspec.set_ransac_properties(filter_close=True,
@@ -173,7 +181,7 @@ lhs6328_onedspec.add_user_atlas(elements=elements,
 lhs6328_onedspec.do_hough_transform()
 
 # Solve for the pixel-to-wavelength solution
-lhs6328_onedspec.fit(max_tries=500, stype='science+standard', display=False)
+lhs6328_onedspec.fit(max_tries=500, stype='science+standard', display=True)
 
 # Apply the wavelength calibration and display it
 lhs6328_onedspec.apply_wavelength_calibration(stype='science+standard')
