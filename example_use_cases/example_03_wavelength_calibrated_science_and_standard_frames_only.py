@@ -3,12 +3,12 @@ from astropy.io import fits
 from aspired import spectral_reduction
 
 # Load the image
-arc_fits = fits.open(
-    'example_use_cases/sprat_LHS6328_Hiltner102_raw/v_a_20180810_13_1_0_1.fits.gz')[0]
 lhs6328_fits = fits.open(
-    'example_use_cases/sprat_LHS6328_Hiltner102_raw/v_e_20180810_12_1_0_2.fits.gz')[1]
+    'example_use_cases/sprat_LHS6328_Hiltner102_raw/v_e_20180810_12_1_0_2.fits.gz'
+)[1]
 hilt102_fits = fits.open(
-    'example_use_cases/sprat_LHS6328_Hiltner102_raw/v_s_20180810_27_1_0_2.fits.gz')[1]
+    'example_use_cases/sprat_LHS6328_Hiltner102_raw/v_s_20180810_27_1_0_2.fits.gz'
+)[1]
 
 wave_bin = hilt102_fits.header['CDELT1']
 wave_start = hilt102_fits.header['CRVAL1'] + wave_bin / 2.
@@ -19,14 +19,12 @@ wave = np.linspace(wave_start, wave_end, hilt102_fits.header['NAXIS1'])
 #
 # Loading two pre-saved spectral traces from a single FITS file.
 #
-lhs6328 = spectral_reduction.TwoDSpec(lhs6328_fits,
-                                      readnoise=2.34)
-hilt102 = spectral_reduction.TwoDSpec(hilt102_fits,
-                                      readnoise=2.34)
+lhs6328 = spectral_reduction.TwoDSpec(lhs6328_fits)
+hilt102 = spectral_reduction.TwoDSpec(hilt102_fits)
 
 # Trace the spectra
 lhs6328.ap_trace(nspec=2, display=True)
-hilt102.ap_trace(nspec=1, display=False)
+hilt102.ap_trace(nspec=1, display=True)
 
 # Extract the spectra
 lhs6328.ap_extract(apwidth=10, optimal=True, skywidth=10, display=False)

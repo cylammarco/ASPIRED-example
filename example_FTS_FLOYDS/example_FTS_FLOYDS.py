@@ -15,9 +15,10 @@ element_Hg_red = ['Hg'] * len(atlas_Hg_red)
 element_Ar_red = ['Ar'] * len(atlas_Ar_red)
 
 atlas_Hg_blue = [
-    3650.153, 4046.563, 4077.8314, 4358.328, 4916.068, 5460.7348, 5769.5982
+    3650.153, 4046.563, 4077.8314, 4113.21, 4120.44, 4358.328, 4916.068,
+    5460.7348, 5769.5982, 5790.663
 ]
-atlas_Zn_blue = [4078.14, 4298.3249, 4722.15, 4810.53, 5181.9819]
+atlas_Zn_blue = []
 element_Hg_blue = ['Hg'] * len(atlas_Hg_blue)
 element_Zn_blue = ['Zn'] * len(atlas_Zn_blue)
 
@@ -45,7 +46,7 @@ def extract_floyds(light_fits,
                                       readnoise=3.5,
                                       gain=2.3,
                                       log_level='INFO',
-                                      log_file_name='None')
+                                      log_file_name=None)
 
     blue = spectral_reduction.TwoDSpec(light_data,
                                        header=light_header,
@@ -56,7 +57,7 @@ def extract_floyds(light_fits,
                                        readnoise=3.5,
                                        gain=2.3,
                                        log_level='INFO',
-                                       log_file_name='None')
+                                       log_file_name=None)
 
     # Add the arcs before rectifying the image, which will apply the
     # rectification to the arc frames too
@@ -122,7 +123,7 @@ def extract_floyds(light_fits,
                                        readnoise=3.5,
                                        gain=2.3,
                                        log_level='INFO',
-                                       log_file_name='None')
+                                       log_file_name=None)
 
     # Force extraction from the flat for fringe correction
     flat.add_trace(trace_red, trace_sigma_red)
@@ -139,47 +140,54 @@ def calibrate_red(science, standard, standard_name):
     # Start handling 1D spectra here
     #
     # Need to add fringe subtraction here
-    red = spectral_reduction.OneDSpec(log_level='INFO', log_file_name=None)
+    red_onedspec = spectral_reduction.OneDSpec(log_level='INFO',
+                                               log_file_name=None)
 
     # Red spectrum first
-    red.from_twodspec(standard, stype='standard')
-    red.from_twodspec(science, stype='science')
+    red_onedspec.from_twodspec(standard, stype='standard')
+    red_onedspec.from_twodspec(science, stype='science')
 
     # Find the peaks of the arc
-    red.find_arc_lines(display=True, prominence=100, stype='science')
-    red.find_arc_lines(display=True, prominence=20, stype='standard')
+    red_onedspec.find_arc_lines(display=True,
+                                percentile=0.5,
+                                prominence=1,
+                                stype='science')
+    red_onedspec.find_arc_lines(display=True,
+                                percentile=0.5,
+                                prominence=1,
+                                stype='standard')
 
     # Configure the wavelength calibrator
-    red.initialise_calibrator(stype='science+standard')
+    red_onedspec.initialise_calibrator(stype='science+standard')
 
-    red.add_user_atlas(elements=element_Hg_red,
-                       wavelengths=atlas_Hg_red,
-                       stype='science+standard')
-    red.add_user_atlas(elements=element_Ar_red,
-                       wavelengths=atlas_Ar_red,
-                       stype='science+standard')
+    red_onedspec.add_user_atlas(elements=element_Hg_red,
+                                wavelengths=atlas_Hg_red,
+                                stype='science+standard')
+    red_onedspec.add_user_atlas(elements=element_Ar_red,
+                                wavelengths=atlas_Ar_red,
+                                stype='science+standard')
 
-    red.set_hough_properties(num_slopes=2000,
-                             xbins=100,
-                             ybins=100,
-                             min_wavelength=4500,
-                             max_wavelength=10500,
-                             stype='science+standard')
-    red.set_ransac_properties(stype='science+standard')
-    red.do_hough_transform(stype='science+standard')
+    red_onedspec.set_hough_properties(num_slopes=2000,
+                                      xbins=100,
+                                      ybins=100,
+                                      min_wavelength=4500,
+                                      max_wavelength=10500,
+                                      stype='science+standard')
+    red_onedspec.set_ransac_properties(stype='science+standard')
+    red_onedspec.do_hough_transform(stype='science+standard')
 
     # Solve for the pixel-to-wavelength solution
-    red.fit(max_tries=2000, stype='science+standard', display=True)
+    red_onedspec.fit(max_tries=2000, stype='science+standard', display=True)
 
     # Apply the wavelength calibration and display it
-    red.apply_wavelength_calibration(wave_start=5000,
-                                     wave_end=11000,
-                                     wave_bin=1,
-                                     stype='science+standard')
+    red_onedspec.apply_wavelength_calibration(wave_start=5000,
+                                              wave_end=11000,
+                                              wave_bin=1,
+                                              stype='science+standard')
 
-    red.load_standard(standard_name)
-    red.compute_sensitivity()
-    red.apply_flux_calibration()
+    red_onedspec.load_standard(standard_name)
+    red_onedspec.compute_sensitivity()
+    red_onedspec.apply_flux_calibration()
     '''
 
     L745_fringe_count = L745_twodspec_flat.spectrum_list[0].count
@@ -212,7 +220,7 @@ def calibrate_red(science, standard, standard_name):
 
     '''
 
-    return red
+    return red_onedspec
 
 
 def calibrate_blue(science, standard, standard_name):
@@ -222,8 +230,8 @@ def calibrate_blue(science, standard, standard_name):
     blue.from_twodspec(standard, stype='standard')
     blue.from_twodspec(science, stype='science')
 
-    blue.find_arc_lines(prominence=10, display=True, stype='science')
-    blue.find_arc_lines(prominence=5, display=True, stype='standard')
+    blue.find_arc_lines(prominence=1, display=True, stype='science')
+    blue.find_arc_lines(prominence=1, display=True, stype='standard')
 
     blue.initialise_calibrator(stype='science+standard')
 
@@ -234,7 +242,7 @@ def calibrate_blue(science, standard, standard_name):
                         wavelengths=atlas_Zn_blue,
                         stype='science+standard')
 
-    blue.set_hough_properties(num_slopes=2000,
+    blue.set_hough_properties(num_slopes=5000,
                               xbins=200,
                               ybins=200,
                               min_wavelength=3000,
@@ -244,7 +252,7 @@ def calibrate_blue(science, standard, standard_name):
     blue.do_hough_transform(stype='science+standard')
 
     # Solve for the pixel-to-wavelength solution
-    blue.fit(max_tries=1000, stype='science+standard', display=True)
+    blue.fit(max_tries=2000, stype='science+standard', display=True)
 
     # Apply the wavelength calibration and display it
     blue.apply_wavelength_calibration(wave_start=3000,
@@ -290,9 +298,7 @@ AT2019mtw_twodspec_red, AT2019mtw_twodspec_blue, AT2019mtw_twodspec_flat =\
     extract_floyds(
         science_light_fits,
         science_flat_fits,
-        science_arc_fits,
-        coeff_red=L745_twodspec_red.rec_coeff,
-        coeff_blue=L745_twodspec_blue.rec_coeff)
+        science_arc_fits)
 
 standard_name = 'l74546a'
 
