@@ -82,11 +82,6 @@ ztf19aamsetj_twodspec_lrb1.ap_extract(display=True)
 ztf19aamsetj_twodspec_lrb2.ap_trace(nspec=1, fit_deg=2, display=True)
 ztf19aamsetj_twodspec_lrb2.ap_extract(display=True)
 
-ztf19aamsetj_twodspec_lrb1.apply_twodspec_mask_to_arc()
-ztf19aamsetj_twodspec_lrb2.apply_twodspec_mask_to_arc()
-ztf19aamsetj_twodspec_lrr1.apply_twodspec_mask_to_arc()
-ztf19aamsetj_twodspec_lrr2.apply_twodspec_mask_to_arc()
-
 ztf19aamsetj_twodspec_lrb1.extract_arc_spec(display=False)
 ztf19aamsetj_twodspec_lrb2.extract_arc_spec(display=False)
 ztf19aamsetj_twodspec_lrr1.extract_arc_spec(display=False)
@@ -160,13 +155,13 @@ ztf19aamsetj_onedspec_lrr2.from_twodspec(hd93521_twodspec_lrr,
                                          stype='standard')
 
 # Extract arc spectrum
-ztf19aamsetj_onedspec_lrb1.find_arc_lines(prominence=50.,
+ztf19aamsetj_onedspec_lrb1.find_arc_lines(prominence=1., display=True,
                                           stype='science+standard')
-ztf19aamsetj_onedspec_lrb2.find_arc_lines(prominence=50.,
+ztf19aamsetj_onedspec_lrb2.find_arc_lines(prominence=1., display=True,
                                           stype='science+standard')
-ztf19aamsetj_onedspec_lrr1.find_arc_lines(prominence=100.,
+ztf19aamsetj_onedspec_lrr1.find_arc_lines(prominence=1., display=True,
                                           stype='science+standard')
-ztf19aamsetj_onedspec_lrr2.find_arc_lines(prominence=100.,
+ztf19aamsetj_onedspec_lrr2.find_arc_lines(prominence=1., display=True,
                                           stype='science+standard')
 
 # Configure the wavelength calibrator
@@ -223,12 +218,12 @@ atlas = [
 ]
 elements = ['ArKrNeHg'] * len(atlas)
 
-ztf19aamsetj_onedspec_lrr1.load_user_atlas(elements=elements,
-                                           wavelengths=atlas,
-                                           stype='science+standard')
-ztf19aamsetj_onedspec_lrr2.load_user_atlas(elements=elements,
-                                           wavelengths=atlas,
-                                           stype='science+standard')
+ztf19aamsetj_onedspec_lrr1.add_user_atlas(elements=elements,
+                                          wavelengths=atlas,
+                                          stype='science+standard')
+ztf19aamsetj_onedspec_lrr2.add_user_atlas(elements=elements,
+                                          wavelengths=atlas,
+                                          stype='science+standard')
 
 ztf19aamsetj_onedspec_lrb1.do_hough_transform()
 ztf19aamsetj_onedspec_lrb2.do_hough_transform()
@@ -265,22 +260,10 @@ ztf19aamsetj_onedspec_lrb2.load_standard(target='hd93521')
 ztf19aamsetj_onedspec_lrr1.load_standard(target='hd93521')
 ztf19aamsetj_onedspec_lrr2.load_standard(target='hd93521')
 
-ztf19aamsetj_onedspec_lrb1.compute_sensitivity(k=3,
-                                               method='interpolate',
-                                               mask_fit_size=1,
-                                               extinction_correction=True)
-ztf19aamsetj_onedspec_lrb2.compute_sensitivity(k=3,
-                                               method='interpolate',
-                                               mask_fit_size=1,
-                                               extinction_correction=True)
-ztf19aamsetj_onedspec_lrr1.compute_sensitivity(k=3,
-                                               method='interpolate',
-                                               mask_fit_size=1,
-                                               extinction_correction=True)
-ztf19aamsetj_onedspec_lrr2.compute_sensitivity(k=3,
-                                               method='interpolate',
-                                               mask_fit_size=1,
-                                               extinction_correction=True)
+ztf19aamsetj_onedspec_lrb1.compute_sensitivity()
+ztf19aamsetj_onedspec_lrb2.compute_sensitivity()
+ztf19aamsetj_onedspec_lrr1.compute_sensitivity()
+ztf19aamsetj_onedspec_lrr2.compute_sensitivity()
 
 ztf19aamsetj_onedspec_lrb1.apply_flux_calibration(stype='science+standard')
 ztf19aamsetj_onedspec_lrb2.apply_flux_calibration(stype='science+standard')

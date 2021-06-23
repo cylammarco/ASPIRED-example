@@ -1,0 +1,84 @@
+[Wed, 23 Jun 2021 19:30:19] INFO [image_reduction.py:406] Loading filelist from C:\Users\cylam\git\aspired-example\example_TNG_DOLORES\ZTF19aamsetj_LRR1.list.
+[Wed, 23 Jun 2021 19:30:19] INFO [image_reduction.py:568] Removing cosmic rays in mode: gaussyx.
+[Wed, 23 Jun 2021 19:30:26] INFO [image_reduction.py:697] Sigma clipping with a lower and upper threshold of 5 and 5 sigma.
+[Wed, 23 Jun 2021 19:30:27] INFO [image_reduction.py:704] light frames are median_combined.
+[Wed, 23 Jun 2021 19:30:27] INFO [image_reduction.py:736] Saxis is found/set to be 1.
+[Wed, 23 Jun 2021 19:30:28] INFO [image_reduction.py:406] Loading filelist from C:\Users\cylam\git\aspired-example\example_TNG_DOLORES\ZTF19aamsetj_LRR2.list.
+[Wed, 23 Jun 2021 19:30:29] INFO [image_reduction.py:568] Removing cosmic rays in mode: gaussyx.
+[Wed, 23 Jun 2021 19:30:35] INFO [image_reduction.py:697] Sigma clipping with a lower and upper threshold of 5 and 5 sigma.
+[Wed, 23 Jun 2021 19:30:36] INFO [image_reduction.py:704] light frames are median_combined.
+[Wed, 23 Jun 2021 19:30:36] INFO [image_reduction.py:736] Saxis is found/set to be 1.
+[Wed, 23 Jun 2021 19:30:38] INFO [image_reduction.py:406] Loading filelist from C:\Users\cylam\git\aspired-example\example_TNG_DOLORES\ZTF19aamsetj_LRB1.list.
+[Wed, 23 Jun 2021 19:30:38] INFO [image_reduction.py:568] Removing cosmic rays in mode: gaussyx.
+[Wed, 23 Jun 2021 19:30:43] INFO [image_reduction.py:697] Sigma clipping with a lower and upper threshold of 5 and 5 sigma.
+[Wed, 23 Jun 2021 19:30:44] INFO [image_reduction.py:704] light frames are median_combined.
+[Wed, 23 Jun 2021 19:30:44] INFO [image_reduction.py:736] Saxis is found/set to be 1.
+[Wed, 23 Jun 2021 19:30:46] INFO [image_reduction.py:406] Loading filelist from C:\Users\cylam\git\aspired-example\example_TNG_DOLORES\ZTF19aamsetj_LRB2.list.
+[Wed, 23 Jun 2021 19:30:46] INFO [image_reduction.py:568] Removing cosmic rays in mode: gaussyx.
+[Wed, 23 Jun 2021 19:30:51] INFO [image_reduction.py:697] Sigma clipping with a lower and upper threshold of 5 and 5 sigma.
+[Wed, 23 Jun 2021 19:30:52] INFO [image_reduction.py:704] light frames are median_combined.
+[Wed, 23 Jun 2021 19:30:52] INFO [image_reduction.py:736] Saxis is found/set to be 1.
+[Wed, 23 Jun 2021 19:30:53] WARNING [image_reduction.py:1215] No bias frames. Bias subtraction is not performed.
+[Wed, 23 Jun 2021 19:30:53] WARNING [image_reduction.py:1222] No dark frames. Dark subtraction is not performed.
+[Wed, 23 Jun 2021 19:30:53] WARNING [image_reduction.py:1229] No flat frames. Field-flattening is not performed.
+[Wed, 23 Jun 2021 19:30:53] WARNING [image_reduction.py:1215] No bias frames. Bias subtraction is not performed.
+[Wed, 23 Jun 2021 19:30:53] WARNING [image_reduction.py:1222] No dark frames. Dark subtraction is not performed.
+[Wed, 23 Jun 2021 19:30:53] WARNING [image_reduction.py:1229] No flat frames. Field-flattening is not performed.
+[Wed, 23 Jun 2021 19:30:54] WARNING [image_reduction.py:1215] No bias frames. Bias subtraction is not performed.
+[Wed, 23 Jun 2021 19:30:54] WARNING [image_reduction.py:1222] No dark frames. Dark subtraction is not performed.
+[Wed, 23 Jun 2021 19:30:54] WARNING [image_reduction.py:1229] No flat frames. Field-flattening is not performed.
+[Wed, 23 Jun 2021 19:30:54] WARNING [image_reduction.py:1215] No bias frames. Bias subtraction is not performed.
+[Wed, 23 Jun 2021 19:30:54] WARNING [image_reduction.py:1222] No dark frames. Dark subtraction is not performed.
+[Wed, 23 Jun 2021 19:30:54] WARNING [image_reduction.py:1229] No flat frames. Field-flattening is not performed.
+[Wed, 23 Jun 2021 19:30:54] INFO [image_reduction.py:1294] Appending the header from the first light frame.
+[Wed, 23 Jun 2021 19:30:54] INFO [twodspec.py:501] Removing cosmic rays in mode: None.
+[Wed, 23 Jun 2021 19:30:54] INFO [twodspec.py:620] Variance image is created from the modulus of the image and the readnoise value.
+[Wed, 23 Jun 2021 19:30:55] INFO [image_reduction.py:1294] Appending the header from the first light frame.
+[Wed, 23 Jun 2021 19:30:55] INFO [twodspec.py:501] Removing cosmic rays in mode: None.
+[Wed, 23 Jun 2021 19:30:55] INFO [twodspec.py:620] Variance image is created from the modulus of the image and the readnoise value.
+[Wed, 23 Jun 2021 19:30:55] INFO [image_reduction.py:1294] Appending the header from the first light frame.
+[Wed, 23 Jun 2021 19:30:56] INFO [twodspec.py:501] Removing cosmic rays in mode: None.
+[Wed, 23 Jun 2021 19:30:56] INFO [twodspec.py:620] Variance image is created from the modulus of the image and the readnoise value.
+[Wed, 23 Jun 2021 19:30:56] INFO [image_reduction.py:1294] Appending the header from the first light frame.
+[Wed, 23 Jun 2021 19:30:57] INFO [twodspec.py:501] Removing cosmic rays in mode: None.
+[Wed, 23 Jun 2021 19:30:57] INFO [twodspec.py:620] Variance image is created from the modulus of the image and the readnoise value.
+[Wed, 23 Jun 2021 19:32:04] INFO [spectrum1D.py:351] spectrum_header is stored.
+[Wed, 23 Jun 2021 19:33:02] INFO [spectrum1D.py:351] spectrum_header is stored.
+[Wed, 23 Jun 2021 19:34:05] INFO [spectrum1D.py:351] spectrum_header is stored.
+[Wed, 23 Jun 2021 19:35:04] INFO [spectrum1D.py:351] spectrum_header is stored.
+[Wed, 23 Jun 2021 19:39:06] INFO [spectrum1D.py:413] arc_header is stored.
+[Wed, 23 Jun 2021 19:39:06] INFO [spectrum1D.py:413] arc_header is stored.
+[Wed, 23 Jun 2021 19:39:06] INFO [spectrum1D.py:413] arc_header is stored.
+[Wed, 23 Jun 2021 19:39:06] INFO [spectrum1D.py:413] arc_header is stored.
+[Wed, 23 Jun 2021 19:39:36] INFO [image_reduction.py:406] Loading filelist from C:\Users\cylam\git\aspired-example\example_TNG_DOLORES\HD93521_LRR.list.
+[Wed, 23 Jun 2021 19:39:37] INFO [image_reduction.py:697] Sigma clipping with a lower and upper threshold of 5 and 5 sigma.
+[Wed, 23 Jun 2021 19:39:39] INFO [image_reduction.py:704] light frames are median_combined.
+[Wed, 23 Jun 2021 19:39:39] INFO [image_reduction.py:736] Saxis is found/set to be 1.
+[Wed, 23 Jun 2021 19:39:40] INFO [image_reduction.py:406] Loading filelist from C:\Users\cylam\git\aspired-example\example_TNG_DOLORES\HD93521_LRB.list.
+[Wed, 23 Jun 2021 19:39:41] INFO [image_reduction.py:697] Sigma clipping with a lower and upper threshold of 5 and 5 sigma.
+[Wed, 23 Jun 2021 19:39:42] INFO [image_reduction.py:704] light frames are median_combined.
+[Wed, 23 Jun 2021 19:39:42] INFO [image_reduction.py:736] Saxis is found/set to be 1.
+[Wed, 23 Jun 2021 19:39:43] WARNING [image_reduction.py:1215] No bias frames. Bias subtraction is not performed.
+[Wed, 23 Jun 2021 19:39:43] WARNING [image_reduction.py:1222] No dark frames. Dark subtraction is not performed.
+[Wed, 23 Jun 2021 19:39:43] WARNING [image_reduction.py:1229] No flat frames. Field-flattening is not performed.
+[Wed, 23 Jun 2021 19:39:43] WARNING [image_reduction.py:1215] No bias frames. Bias subtraction is not performed.
+[Wed, 23 Jun 2021 19:39:43] WARNING [image_reduction.py:1222] No dark frames. Dark subtraction is not performed.
+[Wed, 23 Jun 2021 19:39:43] WARNING [image_reduction.py:1229] No flat frames. Field-flattening is not performed.
+[Wed, 23 Jun 2021 19:39:44] INFO [image_reduction.py:1294] Appending the header from the first light frame.
+[Wed, 23 Jun 2021 19:39:45] INFO [twodspec.py:501] Removing cosmic rays in mode: None.
+[Wed, 23 Jun 2021 19:39:48] INFO [twodspec.py:620] Variance image is created from the modulus of the image and the readnoise value.
+[Wed, 23 Jun 2021 19:39:48] INFO [image_reduction.py:1294] Appending the header from the first light frame.
+[Wed, 23 Jun 2021 19:39:48] INFO [twodspec.py:501] Removing cosmic rays in mode: None.
+[Wed, 23 Jun 2021 19:39:51] INFO [twodspec.py:620] Variance image is created from the modulus of the image and the readnoise value.
+[Wed, 23 Jun 2021 19:40:49] INFO [spectrum1D.py:351] spectrum_header is stored.
+[Wed, 23 Jun 2021 19:41:59] INFO [spectrum1D.py:351] spectrum_header is stored.
+[Wed, 23 Jun 2021 19:42:00] INFO [spectrum1D.py:413] arc_header is stored.
+[Wed, 23 Jun 2021 19:42:00] INFO [spectrum1D.py:413] arc_header is stored.
+[Wed, 23 Jun 2021 21:38:53] INFO [spectrum1D.py:383] standard_header is stored.
+[Wed, 23 Jun 2021 21:38:53] INFO [spectrum1D.py:383] standard_header is stored.
+[Wed, 23 Jun 2021 21:38:53] INFO [spectrum1D.py:383] standard_header is stored.
+[Wed, 23 Jun 2021 21:38:53] INFO [spectrum1D.py:383] standard_header is stored.
+[Wed, 23 Jun 2021 21:38:53] INFO [spectrum1D.py:383] standard_header is stored.
+[Wed, 23 Jun 2021 21:38:54] INFO [spectrum1D.py:383] standard_header is stored.
+[Wed, 23 Jun 2021 21:38:54] INFO [spectrum1D.py:383] standard_header is stored.
+[Wed, 23 Jun 2021 21:38:54] INFO [spectrum1D.py:383] standard_header is stored.
