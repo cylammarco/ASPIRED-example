@@ -20,3 +20,15 @@ Example reduction with ASPIRED
 8. [x] User supplied pixel-to-wavelength mapping (not fitted).
 9. [x] User supplied sensitivity curve.
 10. [x] Flux calibration for user supplied wavelength calibrated science and standard 1D spectra.
+
+## SPRAT - Liverpool Telescope
+
+A jupyter notebook showing a full reduction of a SPRAT spectrum of the M dwarf [LHS6328](http://simbad.u-strasbg.fr/simbad/sim-id?Ident=LHS++6328), calibrated against the standard star [Hiltner 102](http://www.ing.iac.es/Astronomy/observing/manuals/html_manuals/tech_notes/tn065-100/h102.html) and with a Xe arc lamp.
+
+## ISIS - William Herschel Telescope
+
+A jupyter notebook showing a full reduction of the red arm of ISIS of [PSO J180.1536+62.5419](http://simbad.u-strasbg.fr/simbad/sim-id?Ident=%4015306489&Name=PSO%20J180.1536%2b62.5419&submit=submit), calibrated against [G93-48](https://www.eso.org/sci/observing/tools/standards/spectra/g93_48.html) and with a CuAr+CuNe arc lamp.
+
+## DOLORES - Telescopio Nazionale Galileo
+
+A plain Python script to show a full reduction of the red and blue arm of [ZTF19aamsetj](https://www.wis-tns.org/object/2019cad), calibrated against [HD 19445](http://www.ing.iac.es/Astronomy/observing/manuals/html_manuals/tech_notes/tn065-100/hd194.html) and with a Ar+Kr+Ne+Hg arc lamp.
