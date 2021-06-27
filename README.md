@@ -32,3 +32,7 @@ A jupyter notebook showing a full reduction of the red arm of ISIS of [PSO J180.
 ## DOLORES - Telescopio Nazionale Galileo
 
 A plain Python script to show a full reduction of the red and blue arm of [ZTF19aamsetj](https://www.wis-tns.org/object/2019cad), calibrated against [HD 19445](http://www.ing.iac.es/Astronomy/observing/manuals/html_manuals/tech_notes/tn065-100/hd194.html) and with a Ar+Kr+Ne+Hg arc lamp.
+
+## OSIRIS - Gran Telescopio Canarias
+
+A plain Python script to show a full reduction of the R1000B and R2500U spectra of ZTF-BLAP-01, calibrated with a Hg+Ar+Ne lamp and Hg+Ar+Xe lamp, respectively. Both interstellar and atmospheric extinctions are corrected.
