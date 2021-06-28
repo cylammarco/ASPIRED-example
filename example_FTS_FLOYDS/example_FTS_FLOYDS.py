@@ -4,6 +4,8 @@ from aspired import spectral_reduction
 from matplotlib import pyplot as plt
 from statsmodels.nonparametric.smoothers_lowess import lowess
 
+from scipy import optimize
+
 # Line list
 atlas_Hg_red = [5460.7348, 5769.5982, 5790.6630]
 atlas_Ar_red = [
@@ -27,6 +29,12 @@ red_spatial_mask = np.arange(0, 330)
 blue_spatial_mask = np.arange(335, 512)
 red_spec_mask = np.arange(0, 1900)
 blue_spec_mask = np.arange(500, 2060)
+
+
+def flux_diff(ratio, a, b):
+    diff = a * ratio - b
+    mask = diff < np.nanpercentile(diff, 95)
+    return np.nansum(diff[mask]**2.)
 
 
 def extract_floyds(light_fits,
@@ -132,6 +140,33 @@ def extract_floyds(light_fits,
     flat.add_trace(trace_red_rectified, trace_sigma_red_rectified)
     flat.ap_extract(apwidth=10, skywidth=0, display=True)
 
+    fringe_count = flat.spectrum_list[0].count
+
+    fringe_continuum = lowess(fringe_count,
+                              np.arange(len(fringe_count)),
+                              frac=0.02,
+                              return_sorted=False)
+    fringe_normalised = fringe_count - fringe_continuum
+
+    red_count = red.spectrum_list[0].count
+    red_continuum = lowess(red_count,
+                           np.arange(len(red_count)),
+                           frac=0.1,
+                           return_sorted=False)
+    red_normalised = red_count - red_continuum
+
+    factor_mean = optimize.minimize(
+        flux_diff,
+        1.0,
+        args=((fringe_normalised[800:1600] - 1) * red_continuum[800:1600] /
+              fringe_continuum[800:1600], red_normalised[800:1600] - 1)).x
+
+    fringe_correction = (fringe_normalised * red_continuum / fringe_continuum *
+                         factor_mean)
+
+    # Apply the flat correction
+    red.spectrum_list[0].count -= fringe_correction
+
     return red, blue, flat
 
 
@@ -188,37 +223,6 @@ def calibrate_red(science, standard, standard_name):
     red_onedspec.load_standard(standard_name)
     red_onedspec.compute_sensitivity()
     red_onedspec.apply_flux_calibration()
-    '''
-
-    L745_fringe_count = L745_twodspec_flat.spectrum_list[0].count
-
-    L745_fringe_continuum = lowess(L745_fringe_count,
-                                np.arange(len(L745_fringe_count)),
-                                frac=0.04,
-                                return_sorted=False)
-    L745_fringe_normalised = L745_fringe_count / L745_fringe_continuum
-
-    L745_red_count = L745_twodspec_red.spectrum_list[0].count
-    L745_red_continuum = lowess(L745_red_count,
-                                np.arange(len(L745_red_count)),
-                                frac=0.04,
-                                return_sorted=False)
-    L745_red_normalised = L745_red_count / L745_red_continuum
-    L745_sed_correction = L745_fringe_continuum / L745_red_continuum
-    L745_sed_correction /= np.nanmean(L745_sed_correction)
-
-    L745_factor = (np.nanpercentile(L745_fringe_normalised[1000:1800], 95)) / (
-        np.nanpercentile(L745_red_normalised[1000:1800], 5))
-    L745_factor_mean = np.nanmean(L745_factor)
-
-    L745_fringe_correction =\
-        L745_fringe_normalised / L745_factor_mean *\
-            L745_red_continuum * L745_sed_correction
-
-    # Apply the flat correction
-    L745_twodspec_red.spectrum_list[0].count -= L745_fringe_correction
-
-    '''
 
     return red_onedspec
 
@@ -255,8 +259,8 @@ def calibrate_blue(science, standard, standard_name):
     blue.fit(max_tries=2000, stype='science+standard', display=True)
 
     # Apply the wavelength calibration and display it
-    blue.apply_wavelength_calibration(wave_start=3000,
-                                      wave_end=5800,
+    blue.apply_wavelength_calibration(wave_start=3200,
+                                      wave_end=5500,
                                       wave_bin=1,
                                       stype='science+standard')
 
@@ -279,7 +283,7 @@ standard_flat_fits = fits.open("FLOYDS_AT2019mtw_raw_data/standard/"
 standard_arc_fits = fits.open("FLOYDS_AT2019mtw_raw_data/standard/"
                               "coj2m002-en12-20210126-0005-a00.fits.fz")[1]
 
-L745_twodspec_red, L745_twodspec_blue, L745_twodspec_flat =\
+standard_twodspec_red, standard_twodspec_blue, standard_twodspec_flat =\
     extract_floyds(standard_light_fits, standard_flat_fits, standard_arc_fits)
 
 #
@@ -302,9 +306,9 @@ AT2019mtw_twodspec_red, AT2019mtw_twodspec_blue, AT2019mtw_twodspec_flat =\
 
 standard_name = 'l74546a'
 
-onedspec_blue = calibrate_blue(AT2019mtw_twodspec_blue, L745_twodspec_blue,
-                               standard_name)
-onedspec_red = calibrate_red(AT2019mtw_twodspec_red, L745_twodspec_red,
+onedspec_blue = calibrate_blue(AT2019mtw_twodspec_blue,
+                               standard_twodspec_blue, standard_name)
+onedspec_red = calibrate_red(AT2019mtw_twodspec_red, standard_twodspec_red,
                              standard_name)
 
 # Inspect
@@ -340,7 +344,7 @@ plt.plot(wave,
          official_fits.data[0][0] * LCO_unit,
          color='black',
          label='Official LCO Pipeline')
-plt.xlim(min(wave), max(wave))
+plt.xlim(3000., 10000.)
 plt.ylim(0, max(official_fits.data[0][0]) * LCO_unit * 1.05)
 plt.xlabel('Wavelength / A')
 plt.ylabel('Flux / (erg / s / cm / cm / A)')
@@ -348,6 +352,7 @@ plt.legend()
 plt.grid()
 plt.tight_layout()
 plt.title('AT 2019 MTW')
+plt.savefig('AT2019mtw.png')
 
 redshift = 0.06707
 wave_rest = wave / (1 + redshift)
@@ -368,14 +373,6 @@ plt.plot(wave_rest,
          official_fits.data[0][0] * LCO_unit,
          color='black',
          label='Official LCO Pipeline')
-plt.xlim(min(wave_rest), max(wave_rest))
-plt.ylim(0, max(official_fits.data[0][0]) * LCO_unit * 1.05)
-plt.xlabel('Rest Wavelength / A')
-plt.ylabel('Flux / (erg / s / cm / cm / A)')
-plt.legend()
-plt.grid()
-plt.tight_layout()
-plt.title('AT 2019 MTW')
 
 snex_fits = fits.open(
     '/Users/cylam/Downloads/AT2019mtw_20200321_redblu_181426.411.fits')[0]
@@ -384,5 +381,19 @@ wave_start2 = float(
     snex_fits.header['CRVAL1']) - float(snex_fits.header['CRPIX1']) * wave_bin2
 spec_length2 = len(snex_fits.data[0][0])
 wave2 = np.linspace(wave_start2, wave_start2 + wave_bin2 * spec_length2,
-                    spec_length2)
+                    spec_length2) / (1 + redshift)
 plt.plot(wave2, snex_fits.data[0][0] * 30, color='red', label='SNEx')
+
+plt.xlim(3000., 10000.)
+plt.ylim(
+    0,
+    max(onedspec_red.science_spectrum_list[0].flux_resampled[
+        (wave_red_rest > 3500.) & (wave_red_rest < 10000.)]) * 1.05)
+plt.xlabel('Rest Wavelength / A')
+plt.ylabel('Flux / (erg / s / cm / cm / A)')
+plt.legend()
+plt.grid()
+plt.tight_layout()
+plt.title('AT 2019 MTW (Rest Wavelength)')
+
+plt.savefig('AT2019mtw_rest_wavelength.png')
