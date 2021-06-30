@@ -223,6 +223,7 @@ def calibrate_red(science, standard, standard_name):
     red_onedspec.load_standard(standard_name)
     red_onedspec.compute_sensitivity()
     red_onedspec.apply_flux_calibration()
+    red_onedspec.apply_telluric_correction()
 
     return red_onedspec
 
@@ -306,8 +307,8 @@ AT2019mtw_twodspec_red, AT2019mtw_twodspec_blue, AT2019mtw_twodspec_flat =\
 
 standard_name = 'l74546a'
 
-onedspec_blue = calibrate_blue(AT2019mtw_twodspec_blue,
-                               standard_twodspec_blue, standard_name)
+onedspec_blue = calibrate_blue(AT2019mtw_twodspec_blue, standard_twodspec_blue,
+                               standard_name)
 onedspec_red = calibrate_red(AT2019mtw_twodspec_red, standard_twodspec_red,
                              standard_name)
 
