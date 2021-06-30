@@ -23,7 +23,7 @@ Example reduction with ASPIRED
 
 ## SPRAT - Liverpool Telescope
 
-A jupyter notebook showing a full reduction of a SPRAT spectrum of the M dwarf [LHS6328](http://simbad.u-strasbg.fr/simbad/sim-id?Ident=LHS++6328), calibrated against the standard star [Hiltner 102](http://www.ing.iac.es/Astronomy/observing/manuals/html_manuals/tech_notes/tn065-100/h102.html) and with a Xe arc lamp.
+A jupyter notebook showing a full reduction of a SPRAT spectrum of the M dwarf [LHS6328](http://simbad.u-strasbg.fr/simbad/sim-id?Ident=LHS++6328), calibrated against the standard star [Hiltner 102](http://www.ing.iac.es/Astronomy/observing/manuals/html_manuals/tech_notes/tn065-100/h102.html) and with a Xe arc lamp. Telluric absorptions are corrected.
 
 ## ISIS - William Herschel Telescope
 
