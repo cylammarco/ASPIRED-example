@@ -35,4 +35,8 @@ A plain Python script to show a full reduction of the red and blue arm of [ZTF19
 
 ## OSIRIS - Gran Telescopio Canarias
 
-A plain Python script to show a full reduction of the R1000B and R2500U spectra of ZTF-BLAP-01, calibrated with a Hg+Ar+Ne lamp and Hg+Ar+Xe lamp, respectively. Both interstellar and atmospheric extinctions are corrected.
+A plain Python script to show a full reduction of the R1000B and R2500U spectra of ZTF-BLAP-01, calibrated with a Hg+Ar+Ne lamp and Hg+Ar+Xe lamp, respectively. The flux calibration was performed with [Feige 110](http://www.ing.iac.es/Astronomy/observing/manuals/html_manuals/tech_notes/tn065-100/f110.html). Both interstellar and atmospheric extinctions are corrected.
+
+## FLOYDS - Faulkes South Telescope
+
+A plain Python script to show a full reduction of the red and blue FLOYDS spectra of [AT2019MTW](https://www.wis-tns.org/object/2019mtw), calibrated against [L 745-46A](http://www.ing.iac.es/Astronomy/observing/manuals/html_manuals/tech_notes/tn065-100/l745.html). 2D distortion correction is applied to straighten the spectra; the 1D fringe pattern is subtracted from the red spectrum; and the Telluric absorptions are corrected.
