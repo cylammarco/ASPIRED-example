@@ -34,7 +34,7 @@ lhs6328_twodspec = spectral_reduction.TwoDSpec(spatial_mask=spatial_mask,
 
 # Add a 2D arc image
 lhs6328_twodspec.add_arc(arc_fits)
-lhs6328_twodspec.apply_twodspec_mask_to_arc()
+lhs6328_twodspec.apply_mask_to_arc()
 
 # Add the trace and the line spread function (sigma) to the 2D arc image
 lhs6328_twodspec.add_trace(lhs6328_trace, lhs6328_trace_sigma)

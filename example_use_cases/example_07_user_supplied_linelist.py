@@ -20,10 +20,10 @@ spec_mask = np.arange(50, 1024)
 #
 
 # Science frame
-lhs6328_frame = image_reduction.ImageReduction(
-    'example_use_cases/sprat_LHS6328.list',
-    log_file_name=None,
-    log_level='INFO')
+lhs6328_frame = image_reduction.ImageReduction(log_file_name=None,
+                                               log_level='INFO')
+lhs6328_frame.add_filelist('example_use_cases/sprat_LHS6328.list')
+lhs6328_frame.load_data()
 lhs6328_frame.reduce()
 
 lhs6328_twodspec = spectral_reduction.TwoDSpec(lhs6328_frame,
@@ -58,8 +58,9 @@ lhs6328_twodspec.ap_extract(
     save_fig=True)
 
 # Standard frame
-standard_frame = image_reduction.ImageReduction(
-    'example_use_cases/sprat_Hiltner102.list', log_file_name=None)
+standard_frame = image_reduction.ImageReduction(log_file_name=None)
+standard_frame.add_filelist('example_use_cases/sprat_Hiltner102.list')
+standard_frame.load_data()
 standard_frame.reduce()
 
 hilt102_twodspec = spectral_reduction.TwoDSpec(standard_frame,
@@ -126,9 +127,9 @@ lhs6328_onedspec.set_ransac_properties(filter_close=True,
                                        stype='science+standard')
 
 lhs6328_onedspec.add_user_atlas(elements=elements,
-                           wavelengths=wavelengths,
-                           constrain_poly=True,
-                           stype='science+standard')
+                                wavelengths=wavelengths,
+                                constrain_poly=True,
+                                stype='science+standard')
 
 # Solve for the pixel-to-wavelength solution
 lhs6328_onedspec.do_hough_transform(brute_force=False)

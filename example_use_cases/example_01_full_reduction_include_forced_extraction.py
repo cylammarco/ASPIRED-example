@@ -11,9 +11,10 @@ spec_mask = np.arange(50, 1024)
 
 # Science frame
 lhs6328_frame = image_reduction.ImageReduction(
-    'example_use_cases/sprat_LHS6328.list',
     log_file_name=None,
     log_level='INFO')
+lhs6328_frame.add_filelist('example_use_cases/sprat_LHS6328.list')
+lhs6328_frame.load_data()
 lhs6328_frame.reduce()
 lhs6328_frame.inspect(filename='example_output/example_01_a_science_image',
                       save_fig=True)
@@ -90,8 +91,9 @@ lhs6328_twodspec.save_fits(
     filename='example_output/example_01_a_science_traces', overwrite=True)
 
 # Standard frame
-standard_frame = image_reduction.ImageReduction(
-    'example_use_cases/sprat_Hiltner102.list', log_file_name=None)
+standard_frame = image_reduction.ImageReduction(log_file_name=None)
+standard_frame.add_filelist('example_use_cases/sprat_Hiltner102.list')
+standard_frame.load_data()
 standard_frame.reduce()
 standard_frame.inspect(filename='example_output/example_01_a_standard_image',
                        save_fig=True)

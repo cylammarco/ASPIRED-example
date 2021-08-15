@@ -5,8 +5,8 @@ from aspired import spectral_reduction
 # pixel-wavelength mapping
 pix = np.arange(10) * 100
 wave = np.array((3678.27600444, 4099.95638482, 4536.85629523, 4986.55350976,
-       5446.64818767, 5914.76287336, 6388.54249641, 6865.65437158,
-       7343.78819876, 7820.65606301))
+                 5446.64818767, 5914.76287336, 6388.54249641, 6865.65437158,
+                 7343.78819876, 7820.65606301))
 
 pw_coeff = np.polynomial.polynomial.polyfit(pix, wave, deg=4)
 
@@ -18,10 +18,10 @@ spec_mask = np.arange(50, 1024)
 #
 
 # Science frame
-lhs6328_frame = image_reduction.ImageReduction(
-    'example_use_cases/sprat_LHS6328.list',
-    log_file_name=None,
-    log_level='INFO')
+lhs6328_frame = image_reduction.ImageReduction(log_file_name=None,
+                                               log_level='INFO')
+lhs6328_frame.add_filelist('example_use_cases/sprat_LHS6328.list')
+lhs6328_frame.load_data()
 lhs6328_frame.reduce()
 
 lhs6328_twodspec = spectral_reduction.TwoDSpec(lhs6328_frame,
@@ -42,7 +42,7 @@ lhs6328_twodspec = spectral_reduction.TwoDSpec(lhs6328_frame,
 lhs6328_twodspec.ap_trace(
     nspec=2,
     display=True,
-    filename='example_output/example_01_a_science_aptrace',
+    filename='example_output/example_08_a_science_aptrace',
     save_fig=True)
 
 # Optimal extraction to get the LSF for force extraction below
@@ -52,12 +52,13 @@ lhs6328_twodspec.ap_extract(
     skydeg=1,
     optimal=True,
     display=True,
-    filename='example_output/example_01_a_science_apextract',
+    filename='example_output/example_08_a_science_apextract',
     save_fig=True)
 
 # Standard frame
-standard_frame = image_reduction.ImageReduction(
-    'example_use_cases/sprat_Hiltner102.list', log_file_name=None)
+standard_frame = image_reduction.ImageReduction(log_file_name=None)
+standard_frame.add_filelist('example_use_cases/sprat_Hiltner102.list')
+standard_frame.load_data()
 standard_frame.reduce()
 
 hilt102_twodspec = spectral_reduction.TwoDSpec(standard_frame,
@@ -73,7 +74,7 @@ hilt102_twodspec.ap_trace(
     nspec=1,
     resample_factor=10,
     display=False,
-    filename='example_output/example_01_a_standard_aptrace',
+    filename='example_output/example_08_a_standard_aptrace',
     save_fig=True)
 
 hilt102_twodspec.ap_extract(
@@ -83,18 +84,18 @@ hilt102_twodspec.ap_extract(
     skydeg=1,
     optimal=True,
     display=False,
-    filename='example_output/example_01_a_standard_apextract',
+    filename='example_output/example_08_a_standard_apextract',
     save_fig=True)
 
 # Extract the 1D arc by aperture sum of the traces provided
 lhs6328_twodspec.extract_arc_spec(
     display=False,
-    filename='example_output/example_01_a_arc_spec_science',
+    filename='example_output/example_08_a_arc_spec_science',
     save_fig=True)
 
 hilt102_twodspec.extract_arc_spec(
     display=False,
-    filename='example_output/example_01_a_arc_spec_standard',
+    filename='example_output/example_08_a_arc_spec_standard',
     save_fig=True)
 
 # Handle 1D Science spectrum
@@ -109,7 +110,6 @@ lhs6328_onedspec.initialise_calibrator(stype='science+standard')
 lhs6328_onedspec.add_fit_coeff(pw_coeff)
 
 # Solve for the pixel-to-wavelength solution
-lhs6328_onedspec.do_hough_transform(brute_force=False)
 lhs6328_onedspec.fit(stype='science+standard', display=True)
 
 # Apply the wavelength calibration and display it
@@ -120,11 +120,11 @@ lhs6328_onedspec.load_standard(target='hiltner102')
 
 lhs6328_onedspec.compute_sensitivity(k=3, mask_fit_size=1)
 lhs6328_onedspec.inspect_sensitivity(
-    save_fig=True, filename='example_output/example_01_a_sensitivity')
+    save_fig=True, filename='example_output/example_08_a_sensitivity')
 
 lhs6328_onedspec.apply_flux_calibration(stype='science+standard')
 
 lhs6328_onedspec.inspect_reduced_spectrum(
     stype='science',
     save_fig=True,
-    filename='example_output/example_01_a_science_spectrum')
+    filename='example_output/example_08_a_science_spectrum')
