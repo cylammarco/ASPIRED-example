@@ -12,8 +12,6 @@ from matplotlib import pyplot as plt
 from scipy import signal
 from spectres import spectres
 
-plt.ion()
-
 lines_H = [6562.79, 4861.35, 4340.472, 4101.734, 3970.075, 3889.064, 3835.397]
 lines_HeI = [10830, 7065, 6678, 5876, 5016, 4922, 4713, 4472, 4026, 3965, 3889]
 lines_HeII = [5412, 4686, 4542, 3203]
@@ -158,17 +156,32 @@ flat_master = signal.medfilt2d(flat_master)
 flat_normalised = flat_master / np.nanmax(flat_master)
 
 light_frame_1 = light_fits_1[2].data.astype('float')
-light_frame_1 = detect_cosmics(light_frame_1/0.95, gain=0.95, readnoise=4.5, fsmode='convolve', psfmodel='gaussy', psfsize=7)[1]
+light_frame_1 = detect_cosmics(light_frame_1 / 0.95,
+                               gain=0.95,
+                               readnoise=4.5,
+                               fsmode='convolve',
+                               psfmodel='gaussy',
+                               psfsize=7)[1]
 light_frame_1 -= bias_master.data
 light_frame_1 /= flat_normalised
 
 light_frame_2 = light_fits_2[2].data.astype('float')
-light_frame_2 = detect_cosmics(light_frame_2/0.95, gain=0.95, readnoise=4.5, fsmode='convolve', psfmodel='gaussy', psfsize=7)[1]
+light_frame_2 = detect_cosmics(light_frame_2 / 0.95,
+                               gain=0.95,
+                               readnoise=4.5,
+                               fsmode='convolve',
+                               psfmodel='gaussy',
+                               psfsize=7)[1]
 light_frame_2 -= bias_master.data
 light_frame_2 /= flat_normalised
 
 standard_frame = standard_fits[2].data.astype('float')
-standard_frame = detect_cosmics(standard_frame/0.95, gain=0.95, readnoise=4.5, fsmode='convolve', psfmodel='gaussy', psfsize=7)[1]
+standard_frame = detect_cosmics(standard_frame / 0.95,
+                                gain=0.95,
+                                readnoise=4.5,
+                                fsmode='convolve',
+                                psfmodel='gaussy',
+                                psfsize=7)[1]
 standard_frame -= bias_master.data
 standard_frame /= flat_normalised
 
@@ -199,7 +212,7 @@ science_1_twodspec.ap_extract(display=True,
                               skywidth=9,
                               model='lowess')
 science_1_twodspec.add_arc(arc_r1000b_master.data)
-science_1_twodspec.apply_twodspec_mask_to_arc()
+science_1_twodspec.apply_mask_to_arc()
 science_1_twodspec.extract_arc_spec(display=False)
 
 science_2_twodspec.ap_trace(display=True, fit_deg=3)
@@ -208,7 +221,7 @@ science_2_twodspec.ap_extract(display=True,
                               skywidth=9,
                               model='lowess')
 science_2_twodspec.add_arc(arc_r1000b_master.data)
-science_2_twodspec.apply_twodspec_mask_to_arc()
+science_2_twodspec.apply_mask_to_arc()
 science_2_twodspec.extract_arc_spec(display=False)
 
 standard_twodspec.ap_trace(display=True, nspec=1, fit_deg=3)
@@ -217,7 +230,7 @@ standard_twodspec.ap_extract(display=True,
                              skywidth=9,
                              model='lowess')
 standard_twodspec.add_arc(arc_r1000b_master.data)
-standard_twodspec.apply_twodspec_mask_to_arc()
+standard_twodspec.apply_mask_to_arc()
 standard_twodspec.extract_arc_spec(display=False)
 
 # One dimensional spectral operation
@@ -231,11 +244,11 @@ science_2_onedspec = spectral_reduction.OneDSpec(log_file_name=None,
 science_2_onedspec.from_twodspec(science_2_twodspec, stype='science')
 science_2_onedspec.from_twodspec(standard_twodspec, stype='standard')
 
-science_1_onedspec.find_arc_lines(prominence=2,
+science_1_onedspec.find_arc_lines(prominence=1,
                                   distance=3,
                                   refine_window_width=3,
                                   display=True)
-science_2_onedspec.find_arc_lines(prominence=2,
+science_2_onedspec.find_arc_lines(prominence=1,
                                   distance=3,
                                   refine_window_width=3,
                                   display=True)
@@ -270,7 +283,7 @@ science_1_onedspec.add_user_atlas(elements=element,
 science_1_onedspec.do_hough_transform()
 
 # Solve for the pixel-to-wavelength solution
-science_1_onedspec.fit(max_tries=2000, stype='science+standard', display=False)
+science_1_onedspec.fit(max_tries=2000, stype='science+standard', display=True)
 
 # Apply the wavelength calibration and display it
 science_1_onedspec.apply_wavelength_calibration(stype='science+standard')
@@ -281,6 +294,7 @@ science_1_onedspec.load_standard(target='feige110')
 science_1_onedspec.compute_sensitivity(k=3,
                                        method='interpolate',
                                        mask_fit_size=5)
+science_1_onedspec.inspect_sensitivity()
 
 science_1_onedspec.apply_flux_calibration(stype='science+standard')
 
@@ -321,6 +335,7 @@ science_2_onedspec.load_standard(target='feige110')
 science_2_onedspec.compute_sensitivity(k=3,
                                        method='interpolate',
                                        mask_fit_size=5)
+science_2_onedspec.inspect_sensitivity()
 
 science_2_onedspec.apply_flux_calibration(stype='science+standard')
 
@@ -437,17 +452,32 @@ flat_r2500u_master = signal.medfilt2d(flat_r2500u_master)
 flat_r2500u_normalised = flat_r2500u_master / np.nanmax(flat_r2500u_master)
 
 light_frame_r2500u_1 = light_fits_r2500u_1[2].data.astype('float')
-light_frame_r2500u_1 = detect_cosmics(light_frame_r2500u_1/0.95, gain=0.95, readnoise=4.5, fsmode='convolve', psfmodel='gaussy', psfsize=7)[1]
+light_frame_r2500u_1 = detect_cosmics(light_frame_r2500u_1 / 0.95,
+                                      gain=0.95,
+                                      readnoise=4.5,
+                                      fsmode='convolve',
+                                      psfmodel='gaussy',
+                                      psfsize=7)[1]
 light_frame_r2500u_1 -= bias_master.data
 light_frame_r2500u_1 /= flat_r2500u_normalised
 
 light_frame_r2500u_2 = light_fits_r2500u_2[2].data.astype('float')
-light_frame_r2500u_2 = detect_cosmics(light_frame_r2500u_2/0.95, gain=0.95, readnoise=4.5, fsmode='convolve', psfmodel='gaussy', psfsize=7)[1]
+light_frame_r2500u_2 = detect_cosmics(light_frame_r2500u_2 / 0.95,
+                                      gain=0.95,
+                                      readnoise=4.5,
+                                      fsmode='convolve',
+                                      psfmodel='gaussy',
+                                      psfsize=7)[1]
 light_frame_r2500u_2 -= bias_master.data
 light_frame_r2500u_2 /= flat_r2500u_normalised
 
 standard_frame_r2500u = standard_fits_r2500u[2].data.astype('float')
-standard_frame_r2500u = detect_cosmics(standard_frame_r2500u/0.95, gain=0.95, readnoise=4.5, fsmode='convolve', psfmodel='gaussy', psfsize=7)[1]
+standard_frame_r2500u = detect_cosmics(standard_frame_r2500u / 0.95,
+                                       gain=0.95,
+                                       readnoise=4.5,
+                                       fsmode='convolve',
+                                       psfmodel='gaussy',
+                                       psfsize=7)[1]
 standard_frame_r2500u -= bias_master.data
 standard_frame_r2500u /= flat_r2500u_normalised
 
@@ -481,7 +511,7 @@ science_r2500u_1_twodspec.ap_extract(display=True,
                                      skywidth=9,
                                      model='lowess')
 science_r2500u_1_twodspec.add_arc(arc_r2500u_master.data)
-science_r2500u_1_twodspec.apply_twodspec_mask_to_arc()
+science_r2500u_1_twodspec.apply_mask_to_arc()
 science_r2500u_1_twodspec.extract_arc_spec(display=False)
 
 science_r2500u_2_twodspec.ap_trace(display=True, fit_deg=3)
@@ -490,7 +520,7 @@ science_r2500u_2_twodspec.ap_extract(display=True,
                                      skywidth=9,
                                      model='lowess')
 science_r2500u_2_twodspec.add_arc(arc_r2500u_master.data)
-science_r2500u_2_twodspec.apply_twodspec_mask_to_arc()
+science_r2500u_2_twodspec.apply_mask_to_arc()
 science_r2500u_2_twodspec.extract_arc_spec(display=False)
 
 # saturated
@@ -502,7 +532,7 @@ standard_r2500u_twodspec.ap_extract(display=True,
                                     skywidth=9,
                                     model='lowess')
 standard_r2500u_twodspec.add_arc(arc_r2500u_master.data)
-standard_r2500u_twodspec.apply_twodspec_mask_to_arc()
+standard_r2500u_twodspec.apply_mask_to_arc()
 standard_r2500u_twodspec.extract_arc_spec(display=False)
 
 # One dimensional spectral operation
@@ -520,11 +550,11 @@ science_r2500u_2_onedspec.from_twodspec(science_r2500u_2_twodspec,
 science_r2500u_2_onedspec.from_twodspec(standard_r2500u_twodspec,
                                         stype='standard')
 
-science_r2500u_1_onedspec.find_arc_lines(prominence=1.0,
+science_r2500u_1_onedspec.find_arc_lines(prominence=1.25,
                                          distance=3,
                                          refine_window_width=3,
                                          display=True)
-science_r2500u_2_onedspec.find_arc_lines(prominence=1.0,
+science_r2500u_2_onedspec.find_arc_lines(prominence=1.25,
                                          distance=3,
                                          refine_window_width=3,
                                          display=True)
@@ -559,7 +589,7 @@ science_r2500u_1_onedspec.do_hough_transform()
 # Solve for the pixel-to-wavelength solution
 science_r2500u_1_onedspec.fit(max_tries=2000,
                               stype='science+standard',
-                              display=False)
+                              display=True)
 
 # Apply the wavelength calibration and display it
 science_r2500u_1_onedspec.apply_wavelength_calibration(
@@ -571,6 +601,7 @@ science_r2500u_1_onedspec.load_standard(target='feige110')
 science_r2500u_1_onedspec.compute_sensitivity(k=3,
                                               method='interpolate',
                                               mask_fit_size=5)
+science_r2500u_1_onedspec.inspect_sensitivity()
 
 science_r2500u_1_onedspec.apply_flux_calibration(stype='science+standard')
 
@@ -615,6 +646,7 @@ science_r2500u_2_onedspec.load_standard(target='feige110')
 science_r2500u_2_onedspec.compute_sensitivity(k=3,
                                               method='interpolate',
                                               mask_fit_size=5)
+science_r2500u_2_onedspec.inspect_sensitivity()
 
 science_r2500u_2_onedspec.apply_flux_calibration(stype='science+standard')
 
@@ -735,6 +767,7 @@ plt.ylabel('Flux / ( erg / cm / cm / s / A)')
 plt.grid()
 plt.legend()
 plt.tight_layout()
+plt.show()
 plt.savefig('ZTF_BLAP_01_GTC_bin5.png')
 
 np.save('wavelength_R1000B', wave_1_bin2)

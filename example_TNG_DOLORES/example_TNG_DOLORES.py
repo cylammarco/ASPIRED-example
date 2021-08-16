@@ -1,3 +1,4 @@
+from astropy.nddata.decorators import SUPPORTED_PROPERTIES
 import numpy as np
 from aspired import spectral_reduction
 from aspired import image_reduction
@@ -7,34 +8,32 @@ from matplotlib import pyplot as plt
 spatial_mask = np.arange(500, 1500)
 
 # Science frame
-ztf19aamsetj_frame_lrr1 = image_reduction.ImageReduction(
-    'ZTF19aamsetj_LRR1.list',
-    cosmicray=True,
-    psfmodel='gaussyx',
-    log_level='INFO',
-    log_file_name='None')
-ztf19aamsetj_frame_lrr2 = image_reduction.ImageReduction(
-    'ZTF19aamsetj_LRR2.list',
-    cosmicray=True,
-    psfmodel='gaussyx',
-    log_level='INFO',
-    log_file_name='None')
-ztf19aamsetj_frame_lrb1 = image_reduction.ImageReduction(
-    'ZTF19aamsetj_LRB1.list',
-    cosmicray=True,
-    psfmodel='gaussyx',
-    log_level='INFO',
-    log_file_name='None')
-ztf19aamsetj_frame_lrb2 = image_reduction.ImageReduction(
-    'ZTF19aamsetj_LRB2.list',
-    cosmicray=True,
-    psfmodel='gaussyx',
-    log_level='INFO',
-    log_file_name='None')
-
+ztf19aamsetj_frame_lrr1 = image_reduction.ImageReduction(log_level='INFO',
+                                                         log_file_name='None')
+ztf19aamsetj_frame_lrr1.add_filelist('ZTF19aamsetj_LRR1.list')
+ztf19aamsetj_frame_lrr1.set_properties(cosmicray=True, psfmodel='gaussyx')
+ztf19aamsetj_frame_lrr1.load_data()
 ztf19aamsetj_frame_lrr1.reduce()
+
+ztf19aamsetj_frame_lrr2 = image_reduction.ImageReduction(log_level='INFO',
+                                                         log_file_name='None')
+ztf19aamsetj_frame_lrr2.add_filelist('ZTF19aamsetj_LRR2.list')
+ztf19aamsetj_frame_lrr2.set_properties(cosmicray=True, psfmodel='gaussyx')
+ztf19aamsetj_frame_lrr2.load_data()
 ztf19aamsetj_frame_lrr2.reduce()
+
+ztf19aamsetj_frame_lrb1 = image_reduction.ImageReduction(log_level='INFO',
+                                                         log_file_name='None')
+ztf19aamsetj_frame_lrb1.add_filelist('ZTF19aamsetj_LRB1.list')
+ztf19aamsetj_frame_lrb1.set_properties(cosmicray=True, psfmodel='gaussyx')
+ztf19aamsetj_frame_lrb1.load_data()
 ztf19aamsetj_frame_lrb1.reduce()
+
+ztf19aamsetj_frame_lrb2 = image_reduction.ImageReduction(log_level='INFO',
+                                                         log_file_name='None')
+ztf19aamsetj_frame_lrb2.add_filelist('ZTF19aamsetj_LRB2.list')
+ztf19aamsetj_frame_lrb2.set_properties(cosmicray=True, psfmodel='gaussyx')
+ztf19aamsetj_frame_lrb2.load_data()
 ztf19aamsetj_frame_lrb2.reduce()
 
 ztf19aamsetj_twodspec_lrr1 = spectral_reduction.TwoDSpec(
@@ -88,18 +87,18 @@ ztf19aamsetj_twodspec_lrr1.extract_arc_spec(display=False)
 ztf19aamsetj_twodspec_lrr2.extract_arc_spec(display=False)
 
 # Standard frames
-hd93521_frame_lrr = image_reduction.ImageReduction('HD93521_LRR.list',
-                                                   cosmicray=False,
-                                                   psfmodel='gauss',
-                                                   log_level='INFO',
+hd93521_frame_lrr = image_reduction.ImageReduction(log_level='INFO',
                                                    log_file_name='None')
-hd93521_frame_lrb = image_reduction.ImageReduction('HD93521_LRB.list',
-                                                   cosmicray=False,
-                                                   psfmodel='gauss',
-                                                   log_level='INFO',
-                                                   log_file_name='None')
-
+hd93521_frame_lrr.add_filelist('HD93521_LRR.list')
+hd93521_frame_lrr.set_properties(cosmicray=False, psfmodel='gauss')
+hd93521_frame_lrr.load_data()
 hd93521_frame_lrr.reduce()
+
+hd93521_frame_lrb = image_reduction.ImageReduction(log_level='INFO',
+                                                   log_file_name='None')
+hd93521_frame_lrb.add_filelist('HD93521_LRB.list')
+hd93521_frame_lrb.set_properties(cosmicray=False, psfmodel='gauss')
+hd93521_frame_lrb.load_data()
 hd93521_frame_lrb.reduce()
 
 hd93521_twodspec_lrr = spectral_reduction.TwoDSpec(hd93521_frame_lrr,
@@ -119,8 +118,8 @@ hd93521_twodspec_lrb.ap_extract(apwidth=15, display=True)
 hd93521_twodspec_lrr.ap_trace(nspec=1, display=True)
 hd93521_twodspec_lrr.ap_extract(apwidth=15, display=True)
 
-hd93521_twodspec_lrb.apply_twodspec_mask_to_arc()
-hd93521_twodspec_lrr.apply_twodspec_mask_to_arc()
+hd93521_twodspec_lrb.apply_mask_to_arc()
+hd93521_twodspec_lrr.apply_mask_to_arc()
 
 hd93521_twodspec_lrb.extract_arc_spec(display=True)
 hd93521_twodspec_lrr.extract_arc_spec(display=True)
@@ -155,13 +154,17 @@ ztf19aamsetj_onedspec_lrr2.from_twodspec(hd93521_twodspec_lrr,
                                          stype='standard')
 
 # Extract arc spectrum
-ztf19aamsetj_onedspec_lrb1.find_arc_lines(prominence=1., display=True,
+ztf19aamsetj_onedspec_lrb1.find_arc_lines(prominence=1.,
+                                          display=True,
                                           stype='science+standard')
-ztf19aamsetj_onedspec_lrb2.find_arc_lines(prominence=1., display=True,
+ztf19aamsetj_onedspec_lrb2.find_arc_lines(prominence=1.,
+                                          display=True,
                                           stype='science+standard')
-ztf19aamsetj_onedspec_lrr1.find_arc_lines(prominence=1., display=True,
+ztf19aamsetj_onedspec_lrr1.find_arc_lines(prominence=1.,
+                                          display=True,
                                           stype='science+standard')
-ztf19aamsetj_onedspec_lrr2.find_arc_lines(prominence=1., display=True,
+ztf19aamsetj_onedspec_lrr2.find_arc_lines(prominence=1.,
+                                          display=True,
                                           stype='science+standard')
 
 # Configure the wavelength calibrator
@@ -231,16 +234,16 @@ ztf19aamsetj_onedspec_lrr1.do_hough_transform()
 ztf19aamsetj_onedspec_lrr2.do_hough_transform()
 
 # Solve for the pixel-to-wavelength solution
-ztf19aamsetj_onedspec_lrb1.fit(max_tries=1000,
+ztf19aamsetj_onedspec_lrb1.fit(max_tries=2000,
                                stype='science+standard',
                                display=False)
-ztf19aamsetj_onedspec_lrb2.fit(max_tries=1000,
+ztf19aamsetj_onedspec_lrb2.fit(max_tries=2000,
                                stype='science+standard',
                                display=False)
-ztf19aamsetj_onedspec_lrr1.fit(max_tries=500,
+ztf19aamsetj_onedspec_lrr1.fit(max_tries=1000,
                                stype='science+standard',
                                display=False)
-ztf19aamsetj_onedspec_lrr2.fit(max_tries=500,
+ztf19aamsetj_onedspec_lrr2.fit(max_tries=1000,
                                stype='science+standard',
                                display=False)
 
@@ -346,11 +349,13 @@ plt.ylabel('Flux')
 plt.tight_layout()
 plt.savefig('ztf19aamsetj_LRR_LRB_weighted_mean_spectra.png')
 
-np.savetxt('LRB_weighted_mean.txt', 
+np.savetxt(
+    'LRB_weighted_mean.txt',
     np.column_stack(
         (wave1, (flux1 / flux_err1 + flux2_resampled / flux_err2_resampled) /
          (1 / flux_err1 + 1 / flux_err2_resampled))))
-np.savetxt('LRR_weighted_mean.txt',
+np.savetxt(
+    'LRR_weighted_mean.txt',
     np.column_stack(
         (wave3, (flux3 / flux_err3 + flux4_resampled / flux_err4_resampled) /
          (1 / flux_err3 + 1 / flux_err4_resampled))))
@@ -400,5 +405,5 @@ plt.tight_layout()
 plt.savefig('ztf19aamsetj_total_weighted_mean_spectra.png')
 
 np.savetxt('coadd_spectrum.txt', np.column_stack((wave_coadd, flux_coadd)))
-np.savetxt('coadd_spectrum_bin2.txt', np.column_stack((wave_coadd_bin2, flux_coadd_bin2))
-           )
+np.savetxt('coadd_spectrum_bin2.txt',
+           np.column_stack((wave_coadd_bin2, flux_coadd_bin2)))

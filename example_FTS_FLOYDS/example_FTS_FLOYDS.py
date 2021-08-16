@@ -1,9 +1,11 @@
+import copy
+
 import numpy as np
 from astropy.io import fits
 from aspired import spectral_reduction
 from matplotlib import pyplot as plt
 from statsmodels.nonparametric.smoothers_lowess import lowess
-
+from scipy import signal
 from scipy import optimize
 
 # Line list
@@ -16,9 +18,9 @@ atlas_Ar_red = [
 element_Hg_red = ['Hg'] * len(atlas_Hg_red)
 element_Ar_red = ['Ar'] * len(atlas_Ar_red)
 
+atlas_Ar_blue = [4158.590, 4200.674]
 atlas_Hg_blue = [
-    3650.153, 4046.563, 4077.8314, 4113.21, 4120.44, 4358.328, 4916.068,
-    5460.7348, 5769.5982, 5790.663
+    3650.153, 4046.563, 4077.8314, 4358.328, 5460.7348, 5769.5982, 5790.663
 ]
 atlas_Zn_blue = []
 element_Hg_blue = ['Hg'] * len(atlas_Hg_blue)
@@ -70,31 +72,33 @@ def extract_floyds(light_fits,
     # Add the arcs before rectifying the image, which will apply the
     # rectification to the arc frames too
     blue.add_arc(arc_fits.data, fits.Header(arc_fits.header))
-    blue.apply_twodspec_mask_to_arc()
+    blue.apply_mask_to_arc()
     red.add_arc(arc_fits.data, fits.Header(arc_fits.header))
-    red.apply_twodspec_mask_to_arc()
+    red.apply_mask_to_arc()
 
     # Get the trace to rectify the image
     red.ap_trace(nspec=1,
-                 ap_faint=20,
-                 trace_width=20,
-                 shift_tol=50,
+                 ap_faint=15,
+                 percentile=25,
+                 trace_width=50,
+                 shift_tol=35,
                  fit_deg=5,
                  display=True)
     red.compute_rectification(upsample_factor=10, coeff=coeff_red)
     red.apply_rectification()
     # Need to store the traces for fringe correction before overwriting them
     # with the new traces
-    trace_red = red.spectrum_list[0].trace
-    trace_sigma_red = red.spectrum_list[0].trace_sigma
+    trace_red = copy.deepcopy(red.spectrum_list[0].trace)
+    trace_sigma_red = copy.deepcopy(red.spectrum_list[0].trace_sigma)
 
     # Get the trace again for the rectified image and then extract
-    red.ap_trace(nspec=1, trace_width=20, fit_deg=3, display=False)
+    red.ap_trace(nspec=1, percentile=25, trace_width=20, fit_deg=5, display=False)
     red.ap_extract(apwidth=10, spec_id=0, display=True)
 
     # Do the same with the blue
     blue.ap_trace(nspec=1,
-                  ap_faint=20,
+                  ap_faint=15,
+                  percentile=30,
                   trace_width=20,
                   shift_tol=50,
                   fit_deg=5,
@@ -108,7 +112,7 @@ def extract_floyds(light_fits,
     blue.ap_trace(nspec=1,
                   percentile=30,
                   trace_width=20,
-                  fit_deg=3,
+                  fit_deg=5,
                   display=True)
     blue.ap_extract(apwidth=10, display=True)
 
@@ -146,6 +150,7 @@ def extract_floyds(light_fits,
                               np.arange(len(fringe_count)),
                               frac=0.02,
                               return_sorted=False)
+    global fringe_normalised
     fringe_normalised = fringe_count - fringe_continuum
 
     red_count = red.spectrum_list[0].count
@@ -153,7 +158,11 @@ def extract_floyds(light_fits,
                            np.arange(len(red_count)),
                            frac=0.1,
                            return_sorted=False)
+    global red_normalised
     red_normalised = red_count - red_continuum
+
+    # find the shift
+    signal.correlate(fringe_normalised, red_normalised)
 
     factor_mean = optimize.minimize(
         flux_diff,
@@ -396,5 +405,5 @@ plt.legend()
 plt.grid()
 plt.tight_layout()
 plt.title('AT 2019 MTW (Rest Wavelength)')
-
+plt.show()
 plt.savefig('AT2019mtw_rest_wavelength.png')
