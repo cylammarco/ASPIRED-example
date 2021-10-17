@@ -29,7 +29,7 @@ lhs6328_onedspec.add_wavelength(wave, stype='standard')
 lhs6328_onedspec.add_wavelength_resampled(wave, stype='standard')
 
 lhs6328_onedspec.load_standard(target='hiltner102')
-lhs6328_onedspec.compute_sensitivity()
+lhs6328_onedspec.get_sensitivity()
 lhs6328_onedspec.apply_flux_calibration(stype='science+standard')
 
 lhs6328_onedspec.apply_flux_calibration(stype='science+standard')

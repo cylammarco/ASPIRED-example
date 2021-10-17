@@ -27,9 +27,6 @@ lhs6328_twodspec = spectral_reduction.TwoDSpec(lhs6328_frame,
                                                cosmicray=True,
                                                readnoise=5.7,
                                                gain=2.45,
-                                               sigclip=0.1,
-                                               psfsize=11.0,
-                                               psffwhm=1.5,
                                                psfmodel='gaussy',
                                                fsmode='convolve',
                                                cleantype='medmask',
@@ -105,7 +102,7 @@ hilt102_twodspec = spectral_reduction.TwoDSpec(standard_frame,
                                                spatial_mask=spatial_mask,
                                                spec_mask=spec_mask,
                                                readnoise=5.7,
-                                               gain=2.6,
+                                               gain=2.45,
                                                log_file_name=None,
                                                log_level='INFO')
 
@@ -158,8 +155,9 @@ lhs6328_onedspec.find_arc_lines(
 lhs6328_onedspec.initialise_calibrator(stype='science+standard')
 lhs6328_onedspec.set_hough_properties(xbins=100,
                                       ybins=100,
-                                      min_wavelength=3500,
+                                      min_wavelength=3800,
                                       max_wavelength=8200,
+                                      range_tolerance=250,
                                       stype='science+standard')
 
 lhs6328_onedspec.set_ransac_properties(filter_close=True,
@@ -186,7 +184,7 @@ lhs6328_onedspec.load_standard(target='hiltner102')
 lhs6328_onedspec.inspect_standard(
     save_fig=True, filename='example_output/example_01_a_literature_standard')
 
-lhs6328_onedspec.compute_sensitivity(k=3, mask_fit_size=1)
+lhs6328_onedspec.get_sensitivity(k=3, mask_fit_size=1)
 lhs6328_onedspec.inspect_sensitivity(
     save_fig=True, filename='example_output/example_01_a_sensitivity')
 

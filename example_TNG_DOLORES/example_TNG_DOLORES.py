@@ -9,28 +9,28 @@ spatial_mask = np.arange(500, 1500)
 
 # Science frame
 ztf19aamsetj_frame_lrr1 = image_reduction.ImageReduction(log_level='INFO',
-                                                         log_file_name='None')
+                                                         log_file_name=None)
 ztf19aamsetj_frame_lrr1.add_filelist('ZTF19aamsetj_LRR1.list')
 ztf19aamsetj_frame_lrr1.set_properties(cosmicray=True, psfmodel='gaussyx')
 ztf19aamsetj_frame_lrr1.load_data()
 ztf19aamsetj_frame_lrr1.reduce()
 
 ztf19aamsetj_frame_lrr2 = image_reduction.ImageReduction(log_level='INFO',
-                                                         log_file_name='None')
+                                                         log_file_name=None)
 ztf19aamsetj_frame_lrr2.add_filelist('ZTF19aamsetj_LRR2.list')
 ztf19aamsetj_frame_lrr2.set_properties(cosmicray=True, psfmodel='gaussyx')
 ztf19aamsetj_frame_lrr2.load_data()
 ztf19aamsetj_frame_lrr2.reduce()
 
 ztf19aamsetj_frame_lrb1 = image_reduction.ImageReduction(log_level='INFO',
-                                                         log_file_name='None')
+                                                         log_file_name=None)
 ztf19aamsetj_frame_lrb1.add_filelist('ZTF19aamsetj_LRB1.list')
 ztf19aamsetj_frame_lrb1.set_properties(cosmicray=True, psfmodel='gaussyx')
 ztf19aamsetj_frame_lrb1.load_data()
 ztf19aamsetj_frame_lrb1.reduce()
 
 ztf19aamsetj_frame_lrb2 = image_reduction.ImageReduction(log_level='INFO',
-                                                         log_file_name='None')
+                                                         log_file_name=None)
 ztf19aamsetj_frame_lrb2.add_filelist('ZTF19aamsetj_LRB2.list')
 ztf19aamsetj_frame_lrb2.set_properties(cosmicray=True, psfmodel='gaussyx')
 ztf19aamsetj_frame_lrb2.load_data()
@@ -39,27 +39,23 @@ ztf19aamsetj_frame_lrb2.reduce()
 ztf19aamsetj_twodspec_lrr1 = spectral_reduction.TwoDSpec(
     ztf19aamsetj_frame_lrr1,
     spatial_mask=spatial_mask,
-    cosmicray=True,
     log_level='INFO',
-    log_file_name='None')
+    log_file_name=None)
 ztf19aamsetj_twodspec_lrr2 = spectral_reduction.TwoDSpec(
     ztf19aamsetj_frame_lrr2,
     spatial_mask=spatial_mask,
-    cosmicray=True,
     log_level='INFO',
-    log_file_name='None')
+    log_file_name=None)
 ztf19aamsetj_twodspec_lrb1 = spectral_reduction.TwoDSpec(
     ztf19aamsetj_frame_lrb1,
     spatial_mask=spatial_mask,
-    cosmicray=True,
     log_level='INFO',
-    log_file_name='None')
+    log_file_name=None)
 ztf19aamsetj_twodspec_lrb2 = spectral_reduction.TwoDSpec(
     ztf19aamsetj_frame_lrb2,
     spatial_mask=spatial_mask,
-    cosmicray=True,
     log_level='INFO',
-    log_file_name='None')
+    log_file_name=None)
 
 ztf19aamsetj_twodspec_lrr1.ap_trace(nspec=1,
                                     nwindow=10,
@@ -88,14 +84,14 @@ ztf19aamsetj_twodspec_lrr2.extract_arc_spec(display=False)
 
 # Standard frames
 hd93521_frame_lrr = image_reduction.ImageReduction(log_level='INFO',
-                                                   log_file_name='None')
+                                                   log_file_name=None)
 hd93521_frame_lrr.add_filelist('HD93521_LRR.list')
 hd93521_frame_lrr.set_properties(cosmicray=False, psfmodel='gauss')
 hd93521_frame_lrr.load_data()
 hd93521_frame_lrr.reduce()
 
 hd93521_frame_lrb = image_reduction.ImageReduction(log_level='INFO',
-                                                   log_file_name='None')
+                                                   log_file_name=None)
 hd93521_frame_lrb.add_filelist('HD93521_LRB.list')
 hd93521_frame_lrb.set_properties(cosmicray=False, psfmodel='gauss')
 hd93521_frame_lrb.load_data()
@@ -105,12 +101,12 @@ hd93521_twodspec_lrr = spectral_reduction.TwoDSpec(hd93521_frame_lrr,
                                                    spatial_mask=spatial_mask,
                                                    cosmicray=True,
                                                    log_level='INFO',
-                                                   log_file_name='None')
+                                                   log_file_name=None)
 hd93521_twodspec_lrb = spectral_reduction.TwoDSpec(hd93521_frame_lrb,
                                                    spatial_mask=spatial_mask,
                                                    cosmicray=True,
                                                    log_level='INFO',
-                                                   log_file_name='None')
+                                                   log_file_name=None)
 
 hd93521_twodspec_lrb.ap_trace(nspec=1, display=True)
 hd93521_twodspec_lrb.ap_extract(apwidth=15, display=True)
@@ -253,9 +249,9 @@ ztf19aamsetj_onedspec_lrb1.apply_wavelength_calibration(
 ztf19aamsetj_onedspec_lrb2.apply_wavelength_calibration(
     stype='science+standard')
 ztf19aamsetj_onedspec_lrr1.apply_wavelength_calibration(
-    stype='science+standard')
+    wave_start=5250, stype='science+standard')
 ztf19aamsetj_onedspec_lrr2.apply_wavelength_calibration(
-    stype='science+standard')
+    wave_start=5250, stype='science+standard')
 
 # Get the standard from the library
 ztf19aamsetj_onedspec_lrb1.load_standard(target='hd93521')
@@ -263,10 +259,10 @@ ztf19aamsetj_onedspec_lrb2.load_standard(target='hd93521')
 ztf19aamsetj_onedspec_lrr1.load_standard(target='hd93521')
 ztf19aamsetj_onedspec_lrr2.load_standard(target='hd93521')
 
-ztf19aamsetj_onedspec_lrb1.compute_sensitivity()
-ztf19aamsetj_onedspec_lrb2.compute_sensitivity()
-ztf19aamsetj_onedspec_lrr1.compute_sensitivity()
-ztf19aamsetj_onedspec_lrr2.compute_sensitivity()
+ztf19aamsetj_onedspec_lrb1.get_sensitivity()
+ztf19aamsetj_onedspec_lrb2.get_sensitivity()
+ztf19aamsetj_onedspec_lrr1.get_sensitivity()
+ztf19aamsetj_onedspec_lrr2.get_sensitivity()
 
 ztf19aamsetj_onedspec_lrb1.apply_flux_calibration(stype='science+standard')
 ztf19aamsetj_onedspec_lrb2.apply_flux_calibration(stype='science+standard')
@@ -288,9 +284,9 @@ ztf19aamsetj_onedspec_lrb1.inspect_reduced_spectrum(wave_min=3000,
                                                     wave_max=8500)
 ztf19aamsetj_onedspec_lrb2.inspect_reduced_spectrum(wave_min=3000,
                                                     wave_max=8500)
-ztf19aamsetj_onedspec_lrr1.inspect_reduced_spectrum(wave_min=4500,
+ztf19aamsetj_onedspec_lrr1.inspect_reduced_spectrum(wave_min=5000,
                                                     wave_max=10100)
-ztf19aamsetj_onedspec_lrr2.inspect_reduced_spectrum(wave_min=4500,
+ztf19aamsetj_onedspec_lrr2.inspect_reduced_spectrum(wave_min=5000,
                                                     wave_max=10100)
 
 ztf19aamsetj_onedspec_lrb1.save_csv(output='wavelength+flux',
@@ -302,23 +298,23 @@ ztf19aamsetj_onedspec_lrr1.save_csv(output='wavelength+flux',
 ztf19aamsetj_onedspec_lrr2.save_csv(output='wavelength+flux',
                                     filename='ztf19aamsetj_lrr2')
 
-wave1 = ztf19aamsetj_onedspec_lrb1.science_spectrum_list[0].wave
-flux1 = ztf19aamsetj_onedspec_lrb1.science_spectrum_list[0].flux
-flux_err1 = ztf19aamsetj_onedspec_lrb1.science_spectrum_list[0].flux_err
+wave1 = ztf19aamsetj_onedspec_lrb1.science_spectrum_list[0].wave_resampled
+flux1 = ztf19aamsetj_onedspec_lrb1.science_spectrum_list[0].flux_resampled
+flux_err1 = ztf19aamsetj_onedspec_lrb1.science_spectrum_list[0].flux_err_resampled
 
-wave2 = ztf19aamsetj_onedspec_lrb2.science_spectrum_list[0].wave
-flux2 = ztf19aamsetj_onedspec_lrb2.science_spectrum_list[0].flux
-flux_err2 = ztf19aamsetj_onedspec_lrb2.science_spectrum_list[0].flux_err
+wave2 = ztf19aamsetj_onedspec_lrb2.science_spectrum_list[0].wave_resampled
+flux2 = ztf19aamsetj_onedspec_lrb2.science_spectrum_list[0].flux_resampled
+flux_err2 = ztf19aamsetj_onedspec_lrb2.science_spectrum_list[0].flux_err_resampled
 
 flux2_resampled, flux_err2_resampled = spectres(wave1, wave2, flux2, flux_err2)
 
-wave3 = ztf19aamsetj_onedspec_lrr1.science_spectrum_list[0].wave
-flux3 = ztf19aamsetj_onedspec_lrr1.science_spectrum_list[0].flux
-flux_err3 = ztf19aamsetj_onedspec_lrr1.science_spectrum_list[0].flux_err
+wave3 = ztf19aamsetj_onedspec_lrr1.science_spectrum_list[0].wave_resampled
+flux3 = ztf19aamsetj_onedspec_lrr1.science_spectrum_list[0].flux_resampled
+flux_err3 = ztf19aamsetj_onedspec_lrr1.science_spectrum_list[0].flux_err_resampled
 
-wave4 = ztf19aamsetj_onedspec_lrr2.science_spectrum_list[0].wave
-flux4 = ztf19aamsetj_onedspec_lrr2.science_spectrum_list[0].flux
-flux_err4 = ztf19aamsetj_onedspec_lrr2.science_spectrum_list[0].flux_err
+wave4 = ztf19aamsetj_onedspec_lrr2.science_spectrum_list[0].wave_resampled
+flux4 = ztf19aamsetj_onedspec_lrr2.science_spectrum_list[0].flux_resampled
+flux_err4 = ztf19aamsetj_onedspec_lrr2.science_spectrum_list[0].flux_err_resampled
 
 flux4_resampled, flux_err4_resampled = spectres(wave3, wave4, flux4, flux_err4)
 

@@ -1,6 +1,6 @@
+import copy
 import os
 
-import extinction
 import numpy as np
 from aspired import spectral_reduction
 from astroscrappy import detect_cosmics
@@ -8,16 +8,27 @@ from astropy import units as u
 from astropy.io import fits
 from astropy.nddata import CCDData
 from ccdproc import Combiner
+import extinction
 from matplotlib import pyplot as plt
-from scipy import signal
 from spectres import spectres
+
+plt.ion()
 
 lines_H = [6562.79, 4861.35, 4340.472, 4101.734, 3970.075, 3889.064, 3835.397]
 lines_HeI = [10830, 7065, 6678, 5876, 5016, 4922, 4713, 4472, 4026, 3965, 3889]
-lines_HeII = [5412, 4686, 4542, 3203]
+lines_HeI_highres = [
+    3819.607, 3819.76, 3888.6489, 3964.729, 4009.27, 4026.191, 4120.82,
+    4143.76, 4387.929, 4437.55, 4471.479
+]
+lines_HeII = [5411.52, 4685.7, 4542.8, 4340, 4200, 3203.10]
+lines_CII = [
+    3918.978, 3920.693, 4267.003, 4267.258, 5145.16, 5151.09, 5889.77, 6578.05,
+    6582.88, 7231.32, 7236.42
+]
+lines_NII = [3995.00, 4630.54, 5005.15, 5679.56, 6482.05, 6610.56]
 lines_OI = [9263, 8446, 7775, 7774, 7772, 6158]
 lines_OI_forbidden = [6363, 6300, 5577]
-lines_OII = [6721, 6641, 4649, 4416, 4076, 3973, 3749, 3713]
+lines_OII = [6721, 6641, 4649, 4416, 4317, 4076, 3982, 3973, 3911, 3749, 3713]
 lines_OII_forbidden = [3729, 3726]
 lines_OIII_forbidden = [5007, 4959, 4363]
 lines_NaI = [8195, 8183, 5896, 5890]
@@ -31,6 +42,13 @@ lines_CaII = [8662, 8542, 8498, 3969, 3934, 3737, 3706, 3180, 3159]
 lines_CaII_forbidden = [7324, 7292]
 lines_FeII = [5363, 5235, 5198, 5169, 5018, 4924, 4549, 4515, 4352, 4303]
 lines_FeIII = [5158, 5129, 4432, 4421, 4397]
+
+lines_OI_atm = [5577, 6300.3, 7774.2]
+lines_OH_atm = [6863, 7340, 7523, 7662, 7750, 7821, 7913, 8025]
+lines_O2_atm = [6277.7, 7605, 6869]
+lines_H2O_atm = [
+    6940.7, 7185.9, 7234.1, 7253.2, 7276.2, 7292.0, 7303.2, 7318.4
+]
 
 base_folder = 'OB0001'
 
@@ -79,7 +97,9 @@ for i in bias_frames:
 bias_combiner = Combiner(bias_CCDData)
 
 # Apply sigma clipping
-bias_combiner.sigma_clipping(low_thresh=5.0, high_thresh=5.0, func=np.ma.mean)
+bias_combiner.sigma_clipping(low_thresh=5.0,
+                             high_thresh=5.0,
+                             func=np.ma.median)
 
 bias_master = bias_combiner.median_combine()
 
@@ -150,18 +170,14 @@ light_fits_1 = fits.open(os.path.join(base_folder, light_r1000b_1))
 light_fits_2 = fits.open(os.path.join(base_folder, light_r1000b_2))
 standard_fits = fits.open(os.path.join(base_folder, standard_r1000b))
 
-flat_master = flat_r1000b_master.data
-flat_master -= bias_master.data
-flat_master = signal.medfilt2d(flat_master)
-flat_normalised = flat_master / np.nanmax(flat_master)
+flat_master = (flat_r1000b_master.data - bias_master.data)
+flat_normalised = flat_master / np.nanmean(flat_master)
 
 light_frame_1 = light_fits_1[2].data.astype('float')
 light_frame_1 = detect_cosmics(light_frame_1 / 0.95,
                                gain=0.95,
                                readnoise=4.5,
-                               fsmode='convolve',
-                               psfmodel='gaussy',
-                               psfsize=7)[1]
+                               sigclip=3.0)[1]
 light_frame_1 -= bias_master.data
 light_frame_1 /= flat_normalised
 
@@ -169,9 +185,7 @@ light_frame_2 = light_fits_2[2].data.astype('float')
 light_frame_2 = detect_cosmics(light_frame_2 / 0.95,
                                gain=0.95,
                                readnoise=4.5,
-                               fsmode='convolve',
-                               psfmodel='gaussy',
-                               psfsize=7)[1]
+                               sigclip=3.0)[1]
 light_frame_2 -= bias_master.data
 light_frame_2 /= flat_normalised
 
@@ -179,79 +193,76 @@ standard_frame = standard_fits[2].data.astype('float')
 standard_frame = detect_cosmics(standard_frame / 0.95,
                                 gain=0.95,
                                 readnoise=4.5,
-                                fsmode='convolve',
-                                psfmodel='gaussy',
-                                psfsize=7)[1]
+                                sigclip=3.0)[1]
 standard_frame -= bias_master.data
 standard_frame /= flat_normalised
 
 science_1_twodspec = spectral_reduction.TwoDSpec(light_frame_1,
                                                  light_fits_1[0].header,
                                                  spatial_mask=spatial_mask,
-                                                 saxis=0,
-                                                 log_file_name=None,
-                                                 log_level='INFO')
+                                                 saxis=0)
 
 science_2_twodspec = spectral_reduction.TwoDSpec(light_frame_2,
                                                  light_fits_2[0].header,
                                                  spatial_mask=spatial_mask,
-                                                 saxis=0,
-                                                 log_file_name=None,
-                                                 log_level='INFO')
+                                                 saxis=0)
 
 standard_twodspec = spectral_reduction.TwoDSpec(standard_frame,
                                                 standard_fits[0].header,
                                                 spatial_mask=spatial_mask,
-                                                saxis=0,
-                                                log_file_name=None,
-                                                log_level='INFO')
+                                                saxis=0)
 
-science_1_twodspec.ap_trace(display=True, fit_deg=3)
-science_1_twodspec.ap_extract(display=True,
-                              apwidth=9,
-                              skywidth=9,
-                              model='lowess')
 science_1_twodspec.add_arc(arc_r1000b_master.data)
 science_1_twodspec.apply_mask_to_arc()
-science_1_twodspec.extract_arc_spec(display=False)
+science_1_twodspec.ap_trace(display=False, fit_deg=3)
+science_1_twodspec.ap_extract(display=False,
+                              apwidth=7,
+                              skywidth=5,
+                              save_fig=True,
+                              fig_type='jpg',
+                              filename='R1000B_1')
+science_1_twodspec.extract_arc_spec(spec_width=20, display=False)
 
-science_2_twodspec.ap_trace(display=True, fit_deg=3)
-science_2_twodspec.ap_extract(display=True,
-                              apwidth=9,
-                              skywidth=9,
-                              model='lowess')
 science_2_twodspec.add_arc(arc_r1000b_master.data)
 science_2_twodspec.apply_mask_to_arc()
-science_2_twodspec.extract_arc_spec(display=False)
+science_2_twodspec.ap_trace(display=False, fit_deg=3)
+science_2_twodspec.ap_extract(display=False,
+                              apwidth=7,
+                              skywidth=5,
+                              save_fig=True,
+                              fig_type='jpg',
+                              filename='R1000B_2')
+science_2_twodspec.extract_arc_spec(spec_width=20, display=False)
 
-standard_twodspec.ap_trace(display=True, nspec=1, fit_deg=3)
-standard_twodspec.ap_extract(display=True,
-                             apwidth=9,
-                             skywidth=9,
-                             model='lowess')
 standard_twodspec.add_arc(arc_r1000b_master.data)
 standard_twodspec.apply_mask_to_arc()
-standard_twodspec.extract_arc_spec(display=False)
+standard_twodspec.ap_trace(display=False, nspec=1, fit_deg=3)
+standard_twodspec.ap_extract(display=False, apwidth=15, skywidth=9)
+standard_twodspec.extract_arc_spec(spec_width=20, display=False)
 
 # One dimensional spectral operation
 science_1_onedspec = spectral_reduction.OneDSpec(log_file_name=None,
                                                  log_level='INFO')
 science_1_onedspec.from_twodspec(science_1_twodspec, stype='science')
-science_1_onedspec.from_twodspec(standard_twodspec, stype='standard')
+science_1_onedspec.from_twodspec(copy.copy(standard_twodspec),
+                                 stype='standard')
 
 science_2_onedspec = spectral_reduction.OneDSpec(log_file_name=None,
                                                  log_level='INFO')
 science_2_onedspec.from_twodspec(science_2_twodspec, stype='science')
-science_2_onedspec.from_twodspec(standard_twodspec, stype='standard')
+science_2_onedspec.from_twodspec(copy.copy(standard_twodspec),
+                                 stype='standard')
 
-science_1_onedspec.find_arc_lines(prominence=1,
+science_1_onedspec.find_arc_lines(prominence=0.001,
                                   distance=3,
+                                  top_n_peaks=40,
                                   refine_window_width=3,
-                                  display=True)
-science_2_onedspec.find_arc_lines(prominence=1,
+                                  display=False)
+science_2_onedspec.find_arc_lines(prominence=0.001,
                                   distance=3,
+                                  top_n_peaks=40,
                                   refine_window_width=3,
-                                  display=True)
+                                  display=False)
 
 atlas = [
     3650.153, 4046.563, 4077.831, 4358.328, 5460.735, 5769.598, 5790.663,
@@ -266,14 +277,13 @@ element = ['HgArNe'] * len(atlas)
 # Configure the wavelength calibrator
 science_1_onedspec.initialise_calibrator(stype='science+standard')
 
-science_1_onedspec.set_hough_properties(num_slopes=2000,
-                                        xbins=200,
-                                        ybins=200,
-                                        min_wavelength=3600,
-                                        max_wavelength=7500,
+science_1_onedspec.set_hough_properties(num_slopes=5000,
+                                        xbins=500,
+                                        ybins=500,
+                                        min_wavelength=3500,
+                                        max_wavelength=8000,
                                         stype='science+standard')
-science_1_onedspec.set_ransac_properties(filter_close=True,
-                                         sample_size=6,
+science_1_onedspec.set_ransac_properties(sample_size=8,
                                          stype='science+standard')
 
 science_1_onedspec.add_user_atlas(elements=element,
@@ -283,17 +293,18 @@ science_1_onedspec.add_user_atlas(elements=element,
 science_1_onedspec.do_hough_transform()
 
 # Solve for the pixel-to-wavelength solution
-science_1_onedspec.fit(max_tries=2000, stype='science+standard', display=True)
+science_1_onedspec.fit(max_tries=2000, stype='science+standard', display=False)
 
 # Apply the wavelength calibration and display it
-science_1_onedspec.apply_wavelength_calibration(stype='science+standard')
+science_1_onedspec.apply_wavelength_calibration(stype='science+standard',
+                                                wave_start=4600.)
 
 # Get the standard from the library
-science_1_onedspec.load_standard(target='feige110')
-
-science_1_onedspec.compute_sensitivity(k=3,
-                                       method='interpolate',
-                                       mask_fit_size=5)
+science_1_onedspec.load_standard(target='Feige110', library='esoxshooter')
+science_1_onedspec.get_continuum(frac=0.3)
+science_1_onedspec.get_sensitivity(k=3,
+                                   method='interpolate',
+                                   mask_fit_size=1)
 science_1_onedspec.inspect_sensitivity()
 
 science_1_onedspec.apply_flux_calibration(stype='science+standard')
@@ -307,14 +318,13 @@ science_1_onedspec.inspect_reduced_spectrum()
 # Configure the wavelength calibrator
 science_2_onedspec.initialise_calibrator(stype='science+standard')
 
-science_2_onedspec.set_hough_properties(num_slopes=2000,
-                                        xbins=200,
-                                        ybins=200,
-                                        min_wavelength=3600,
-                                        max_wavelength=7500,
+science_2_onedspec.set_hough_properties(num_slopes=5000,
+                                        xbins=500,
+                                        ybins=500,
+                                        min_wavelength=3500,
+                                        max_wavelength=8000,
                                         stype='science+standard')
-science_2_onedspec.set_ransac_properties(filter_close=True,
-                                         sample_size=6,
+science_2_onedspec.set_ransac_properties(sample_size=8,
                                          stype='science+standard')
 
 science_2_onedspec.add_user_atlas(elements=element,
@@ -327,14 +337,16 @@ science_2_onedspec.do_hough_transform()
 science_2_onedspec.fit(max_tries=2000, stype='science+standard', display=False)
 
 # Apply the wavelength calibration and display it
-science_2_onedspec.apply_wavelength_calibration(stype='science+standard')
+science_2_onedspec.apply_wavelength_calibration(stype='science+standard',
+                                                wave_start=4600.)
 
 # Get the standard from the library
-science_2_onedspec.load_standard(target='feige110')
+science_2_onedspec.load_standard(target='Feige110', library='esoxshooter')
+science_2_onedspec.get_continuum(frac=0.3)
 
-science_2_onedspec.compute_sensitivity(k=3,
-                                       method='interpolate',
-                                       mask_fit_size=5)
+science_2_onedspec.get_sensitivity(k=3,
+                                   method='interpolate',
+                                   mask_fit_size=1)
 science_2_onedspec.inspect_sensitivity()
 
 science_2_onedspec.apply_flux_calibration(stype='science+standard')
@@ -351,6 +363,7 @@ wave_1_bin5 = wave_1[::5]
 wave_1_bin10 = wave_1[::10]
 
 flux_1 = science_1_onedspec.science_spectrum_list[0].flux_resampled
+flux_1_bin1 = flux_1
 flux_1_bin2 = spectres(wave_1_bin2, wave_1, flux_1)
 flux_1_bin5 = spectres(wave_1_bin5, wave_1, flux_1)
 flux_1_bin10 = spectres(wave_1_bin10, wave_1, flux_1)
@@ -359,13 +372,15 @@ wave_2 = science_2_onedspec.science_spectrum_list[0].wave_resampled
 
 flux_2 = science_2_onedspec.science_spectrum_list[0].flux_resampled
 # note this is resampled to match wave_1s
+flux_2_bin1 = spectres(wave_1, wave_2, flux_2)
 flux_2_bin2 = spectres(wave_1_bin2, wave_2, flux_2)
 flux_2_bin5 = spectres(wave_1_bin5, wave_2, flux_2)
 flux_2_bin10 = spectres(wave_1_bin10, wave_2, flux_2)
 
 # Get the interstellar dust extinction correction
-ext_bin2 = extinction.fm07(wave_1_bin2, 0.8 * 3.1)
-ext_bin5 = extinction.fm07(wave_1_bin5, 0.8 * 3.1)
+ext_bin1 = extinction.fm07(wave_1, 0.81 * 3.1)
+ext_bin2 = extinction.fm07(wave_1_bin2, 0.81 * 3.1)
+ext_bin5 = extinction.fm07(wave_1_bin5, 0.81 * 3.1)
 
 #
 #
@@ -446,18 +461,14 @@ light_fits_r2500u_1 = fits.open(os.path.join(base_folder, light_r2500u_1))
 light_fits_r2500u_2 = fits.open(os.path.join(base_folder, light_r2500u_2))
 standard_fits_r2500u = fits.open(os.path.join(base_folder, standard_r2500u))
 
-flat_r2500u_master = flat_r2500u_master.data
-flat_r2500u_master -= bias_master.data
-flat_r2500u_master = signal.medfilt2d(flat_r2500u_master)
-flat_r2500u_normalised = flat_r2500u_master / np.nanmax(flat_r2500u_master)
+flat_r2500u_master = (flat_r2500u_master.data - bias_master.data)
+flat_r2500u_normalised = flat_r2500u_master / np.nanmean(flat_r2500u_master)
 
 light_frame_r2500u_1 = light_fits_r2500u_1[2].data.astype('float')
 light_frame_r2500u_1 = detect_cosmics(light_frame_r2500u_1 / 0.95,
                                       gain=0.95,
                                       readnoise=4.5,
-                                      fsmode='convolve',
-                                      psfmodel='gaussy',
-                                      psfsize=7)[1]
+                                      sigclip=3.0)[1]
 light_frame_r2500u_1 -= bias_master.data
 light_frame_r2500u_1 /= flat_r2500u_normalised
 
@@ -465,9 +476,7 @@ light_frame_r2500u_2 = light_fits_r2500u_2[2].data.astype('float')
 light_frame_r2500u_2 = detect_cosmics(light_frame_r2500u_2 / 0.95,
                                       gain=0.95,
                                       readnoise=4.5,
-                                      fsmode='convolve',
-                                      psfmodel='gaussy',
-                                      psfsize=7)[1]
+                                      sigclip=3.0)[1]
 light_frame_r2500u_2 -= bias_master.data
 light_frame_r2500u_2 /= flat_r2500u_normalised
 
@@ -475,9 +484,7 @@ standard_frame_r2500u = standard_fits_r2500u[2].data.astype('float')
 standard_frame_r2500u = detect_cosmics(standard_frame_r2500u / 0.95,
                                        gain=0.95,
                                        readnoise=4.5,
-                                       fsmode='convolve',
-                                       psfmodel='gaussy',
-                                       psfsize=7)[1]
+                                       sigclip=3.0)[1]
 standard_frame_r2500u -= bias_master.data
 standard_frame_r2500u /= flat_r2500u_normalised
 
@@ -485,54 +492,49 @@ science_r2500u_1_twodspec = spectral_reduction.TwoDSpec(
     light_frame_r2500u_1,
     light_fits_r2500u_1[0].header,
     spatial_mask=spatial_mask_r2500u,
-    saxis=0,
-    log_file_name=None,
-    log_level='INFO')
+    saxis=0)
 
 science_r2500u_2_twodspec = spectral_reduction.TwoDSpec(
     light_frame_r2500u_2,
     light_fits_r2500u_2[0].header,
     spatial_mask=spatial_mask_r2500u,
-    saxis=0,
-    log_file_name=None,
-    log_level='INFO')
+    saxis=0)
 
 standard_r2500u_twodspec = spectral_reduction.TwoDSpec(
     standard_frame_r2500u,
     standard_fits_r2500u[0].header,
     spatial_mask=spatial_mask_r2500u,
-    saxis=0,
-    log_file_name=None,
-    log_level='INFO')
+    saxis=0)
 
-science_r2500u_1_twodspec.ap_trace(display=True, fit_deg=3)
-science_r2500u_1_twodspec.ap_extract(display=True,
-                                     apwidth=9,
-                                     skywidth=9,
-                                     model='lowess')
 science_r2500u_1_twodspec.add_arc(arc_r2500u_master.data)
 science_r2500u_1_twodspec.apply_mask_to_arc()
+science_r2500u_1_twodspec.ap_trace(display=False, fit_deg=3)
+science_r2500u_1_twodspec.ap_extract(display=True,
+                                     apwidth=11,
+                                     skywidth=11,
+                                     save_fig=True,
+                                     fig_type='jpg',
+                                     filename='R2500U_1')
 science_r2500u_1_twodspec.extract_arc_spec(display=False)
 
-science_r2500u_2_twodspec.ap_trace(display=True, fit_deg=3)
-science_r2500u_2_twodspec.ap_extract(display=True,
-                                     apwidth=9,
-                                     skywidth=9,
-                                     model='lowess')
 science_r2500u_2_twodspec.add_arc(arc_r2500u_master.data)
 science_r2500u_2_twodspec.apply_mask_to_arc()
+science_r2500u_2_twodspec.ap_trace(display=False, fit_deg=3)
+science_r2500u_2_twodspec.ap_extract(display=True,
+                                     apwidth=11,
+                                     skywidth=11,
+                                     save_fig=True,
+                                     fig_type='jpg',
+                                     filename='R2500U_2')
 science_r2500u_2_twodspec.extract_arc_spec(display=False)
 
 # saturated
-standard_r2500u_twodspec.ap_trace(display=True, nspec=1, fit_deg=3)
-standard_r2500u_twodspec.spectrum_list[
-    0].trace_sigma = science_r2500u_2_twodspec.spectrum_list[0].trace_sigma
-standard_r2500u_twodspec.ap_extract(display=True,
-                                    apwidth=9,
-                                    skywidth=9,
-                                    model='lowess')
 standard_r2500u_twodspec.add_arc(arc_r2500u_master.data)
 standard_r2500u_twodspec.apply_mask_to_arc()
+standard_r2500u_twodspec.ap_trace(display=False, nspec=1, fit_deg=3)
+standard_r2500u_twodspec.spectrum_list[
+    0].trace_sigma = science_r2500u_2_twodspec.spectrum_list[0].trace_sigma
+standard_r2500u_twodspec.ap_extract(display=False, apwidth=25, skywidth=10)
 standard_r2500u_twodspec.extract_arc_spec(display=False)
 
 # One dimensional spectral operation
@@ -540,44 +542,44 @@ science_r2500u_1_onedspec = spectral_reduction.OneDSpec(log_file_name=None,
                                                         log_level='INFO')
 science_r2500u_1_onedspec.from_twodspec(science_r2500u_1_twodspec,
                                         stype='science')
-science_r2500u_1_onedspec.from_twodspec(standard_r2500u_twodspec,
+science_r2500u_1_onedspec.from_twodspec(copy.copy(standard_r2500u_twodspec),
                                         stype='standard')
 
 science_r2500u_2_onedspec = spectral_reduction.OneDSpec(log_file_name=None,
                                                         log_level='INFO')
 science_r2500u_2_onedspec.from_twodspec(science_r2500u_2_twodspec,
                                         stype='science')
-science_r2500u_2_onedspec.from_twodspec(standard_r2500u_twodspec,
+science_r2500u_2_onedspec.from_twodspec(copy.copy(standard_r2500u_twodspec),
                                         stype='standard')
 
-science_r2500u_1_onedspec.find_arc_lines(prominence=1.25,
+science_r2500u_1_onedspec.find_arc_lines(prominence=0.01,
                                          distance=3,
                                          refine_window_width=3,
-                                         display=True)
-science_r2500u_2_onedspec.find_arc_lines(prominence=1.25,
+                                         top_n_peaks=15,
+                                         display=False)
+science_r2500u_2_onedspec.find_arc_lines(prominence=0.01,
                                          distance=3,
                                          refine_window_width=3,
-                                         display=True)
+                                         top_n_peaks=15,
+                                         display=False)
 
 atlas_r2500u = [
-    3650.153, 4046.563, 4077.831, 4358.328, 4500.977, 4524.680, 4582.747
+    3650.153, 3948.979, 4046.563, 4077.831, 4191.029, 4358.328, 4500.977,
+    4524.680, 4582.747, 4624.276, 4671.226, 4697.02
 ]
-
-# 4624.276, 4671.226, 4697.02, 4734.152, 4807.00687, 4829.69549, 4843.33135,
-# 4916.52629, 4923.13617, 5460.735
 element_r2500u = ['HgArXe'] * len(atlas_r2500u)
 
 # Configure the wavelength calibrator
 science_r2500u_1_onedspec.initialise_calibrator(stype='science+standard')
 
-science_r2500u_1_onedspec.set_hough_properties(num_slopes=1000,
-                                               xbins=100,
-                                               ybins=100,
-                                               min_wavelength=3200,
+science_r2500u_1_onedspec.set_hough_properties(num_slopes=5000,
+                                               xbins=200,
+                                               ybins=200,
+                                               min_wavelength=3000,
                                                max_wavelength=4800,
                                                stype='science+standard')
 science_r2500u_1_onedspec.set_ransac_properties(filter_close=True,
-                                                sample_size=3,
+                                                sample_size=5,
                                                 stype='science+standard')
 
 science_r2500u_1_onedspec.add_user_atlas(elements=element_r2500u,
@@ -587,20 +589,21 @@ science_r2500u_1_onedspec.add_user_atlas(elements=element_r2500u,
 science_r2500u_1_onedspec.do_hough_transform()
 
 # Solve for the pixel-to-wavelength solution
-science_r2500u_1_onedspec.fit(max_tries=2000,
+science_r2500u_1_onedspec.fit(max_tries=1000,
                               stype='science+standard',
-                              display=True)
+                              display=False)
 
 # Apply the wavelength calibration and display it
 science_r2500u_1_onedspec.apply_wavelength_calibration(
-    stype='science+standard')
+    stype='science+standard', wave_end=4600.)
 
 # Get the standard from the library
-science_r2500u_1_onedspec.load_standard(target='feige110')
-
-science_r2500u_1_onedspec.compute_sensitivity(k=3,
-                                              method='interpolate',
-                                              mask_fit_size=5)
+science_r2500u_1_onedspec.load_standard(target='Feige110', library='esoxshooter')
+science_r2500u_1_onedspec.get_continuum(frac=0.3)
+science_r2500u_1_onedspec.get_sensitivity(k=3,
+                                          method='interpolate',
+                                          smooth=True,
+                                          mask_fit_size=1)
 science_r2500u_1_onedspec.inspect_sensitivity()
 
 science_r2500u_1_onedspec.apply_flux_calibration(stype='science+standard')
@@ -609,8 +612,8 @@ science_r2500u_1_onedspec.apply_flux_calibration(stype='science+standard')
 science_r2500u_1_onedspec.set_atmospheric_extinction(location='orm')
 science_r2500u_1_onedspec.apply_atmospheric_extinction_correction()
 
-science_r2500u_1_onedspec.inspect_reduced_spectrum(wave_min=3200.,
-                                                   wave_max=4800.)
+science_r2500u_1_onedspec.inspect_reduced_spectrum(wave_min=3000.,
+                                                   wave_max=5000.)
 
 # Configure the wavelength calibrator
 science_r2500u_2_onedspec.initialise_calibrator(stype='science+standard')
@@ -622,7 +625,7 @@ science_r2500u_2_onedspec.set_hough_properties(num_slopes=1000,
                                                max_wavelength=4800,
                                                stype='science+standard')
 science_r2500u_2_onedspec.set_ransac_properties(filter_close=True,
-                                                sample_size=3,
+                                                sample_size=5,
                                                 stype='science+standard')
 
 science_r2500u_2_onedspec.add_user_atlas(elements=element_r2500u,
@@ -632,20 +635,21 @@ science_r2500u_2_onedspec.add_user_atlas(elements=element_r2500u,
 science_r2500u_2_onedspec.do_hough_transform()
 
 # Solve for the pixel-to-wavelength solution
-science_r2500u_2_onedspec.fit(max_tries=2000,
+science_r2500u_2_onedspec.fit(max_tries=1000,
                               stype='science+standard',
                               display=False)
 
 # Apply the wavelength calibration and display it
 science_r2500u_2_onedspec.apply_wavelength_calibration(
-    stype='science+standard')
+    stype='science+standard', wave_end=4600.)
 
 # Get the standard from the library
-science_r2500u_2_onedspec.load_standard(target='feige110')
-
-science_r2500u_2_onedspec.compute_sensitivity(k=3,
-                                              method='interpolate',
-                                              mask_fit_size=5)
+science_r2500u_2_onedspec.load_standard(target='Feige110', library='esoxshooter')
+science_r2500u_2_onedspec.get_continuum(frac=0.3)
+science_r2500u_2_onedspec.get_sensitivity(k=3,
+                                          method='interpolate',
+                                          smooth=True,
+                                          mask_fit_size=1)
 science_r2500u_2_onedspec.inspect_sensitivity()
 
 science_r2500u_2_onedspec.apply_flux_calibration(stype='science+standard')
@@ -655,7 +659,7 @@ science_r2500u_2_onedspec.set_atmospheric_extinction(location='orm')
 science_r2500u_2_onedspec.apply_atmospheric_extinction_correction()
 
 science_r2500u_2_onedspec.inspect_reduced_spectrum(wave_min=3000.,
-                                                   wave_max=4800.)
+                                                   wave_max=5000.)
 
 wave_r2500u_1 = science_r2500u_1_onedspec.science_spectrum_list[
     0].wave_resampled
@@ -665,6 +669,8 @@ wave_r2500u_1_bin10 = wave_r2500u_1[::10]
 
 flux_r2500u_1 = science_r2500u_1_onedspec.science_spectrum_list[
     0].flux_resampled
+
+flux_r2500u_1_bin1 = flux_r2500u_1
 flux_r2500u_1_bin2 = spectres(wave_r2500u_1_bin2, wave_r2500u_1, flux_r2500u_1)
 flux_r2500u_1_bin5 = spectres(wave_r2500u_1_bin5, wave_r2500u_1, flux_r2500u_1)
 flux_r2500u_1_bin10 = spectres(wave_r2500u_1_bin10, wave_r2500u_1,
@@ -675,110 +681,115 @@ wave_r2500u_2 = science_r2500u_2_onedspec.science_spectrum_list[
 
 flux_r2500u_2 = science_r2500u_2_onedspec.science_spectrum_list[
     0].flux_resampled
+
 # note this is resampled to match wave_1s
+flux_r2500u_2_bin1 = spectres(wave_r2500u_1, wave_r2500u_2, flux_r2500u_2)
 flux_r2500u_2_bin2 = spectres(wave_r2500u_1_bin2, wave_r2500u_2, flux_r2500u_2)
 flux_r2500u_2_bin5 = spectres(wave_r2500u_1_bin5, wave_r2500u_2, flux_r2500u_2)
 flux_r2500u_2_bin10 = spectres(wave_r2500u_1_bin10, wave_r2500u_2,
                                flux_r2500u_2)
 
 # Get the interstellar dust extinction correction
-ext_r2500u_bin2 = extinction.fm07(wave_r2500u_1_bin2, 0.8 * 3.1)
-ext_r2500u_bin5 = extinction.fm07(wave_r2500u_1_bin5, 0.8 * 3.1)
+ext_r2500u_bin1 = extinction.fm07(wave_r2500u_1, 0.81 * 3.1)
+ext_r2500u_bin2 = extinction.fm07(wave_r2500u_1_bin2, 0.81 * 3.1)
+ext_r2500u_bin5 = extinction.fm07(wave_r2500u_1_bin5, 0.81 * 3.1)
 
 ymax = np.nanmax(extinction.remove(ext_r2500u_bin2, flux_r2500u_1_bin2))
 
-plt.figure(1, figsize=(12, 5))
-plt.clf()
-plt.plot(wave_1_bin2,
-         extinction.remove(ext_bin2, flux_1_bin2),
-         lw=0.5,
-         label='R1000B epoch 1')
-plt.plot(wave_1_bin2,
-         extinction.remove(ext_bin2, flux_2_bin2),
-         lw=0.5,
-         label='R1000B epoch 2')
-plt.plot(wave_1_bin2,
-         extinction.remove(ext_bin2,
-                           np.nanmean((flux_1_bin2, flux_2_bin2), axis=0)),
-         color='black',
-         label='R1000B average')
-plt.plot(wave_r2500u_1_bin2,
-         extinction.remove(ext_r2500u_bin2, flux_r2500u_1_bin2),
-         lw=0.5,
-         label='R2500U epoch 1')
-plt.plot(wave_r2500u_1_bin2,
-         extinction.remove(ext_r2500u_bin2, flux_r2500u_2_bin2),
-         lw=0.5,
-         label='R2500U epoch 2')
-plt.plot(wave_r2500u_1_bin2,
+fig, (ax1, ax2) = plt.subplots(2, figsize=(15, 9))
+
+ax1.plot(wave_r2500u_1,
          extinction.remove(
-             ext_r2500u_bin2,
-             np.nanmean((flux_r2500u_1_bin2, flux_r2500u_2_bin2), axis=0)),
-         color='purple',
+             ext_r2500u_bin1,
+             np.nanmean((flux_r2500u_1_bin1, flux_r2500u_2_bin1), axis=0)),
+         color='0.0',
          label='R2500U average')
-plt.vlines(lines_H, 0, ymax, color='blue', label='H')
-plt.vlines(lines_HeI, 0, ymax, color='red', label='He I')
-plt.vlines(lines_HeII, 0, ymax, color='green', label='He II')
-plt.xlim(3400, 8000)
-plt.ylim(0, 8e-14)
-plt.xlabel('Wavelength / A')
-plt.ylabel('Flux / ( erg / cm / cm / s / A)')
-plt.grid()
-plt.legend()
-plt.tight_layout()
-plt.savefig('ZTF_BLAP_01_GTC_bin2.png')
+ax1.plot(wave_r2500u_1,
+         extinction.remove(ext_r2500u_bin1, flux_r2500u_1_bin1),
+         lw=0.5,
+         label='Epoch 1')
+ax1.plot(wave_r2500u_1,
+         extinction.remove(ext_r2500u_bin1, flux_r2500u_2_bin1),
+         lw=0.5,
+         label='Epoch 2')
+ax1.vlines(lines_H, 0, ymax, color='C0', label='H')
+ax1.vlines(lines_HeI_highres, 0, ymax, color='C1', label='He I')
+ax1.vlines(lines_HeII, 0, ymax, color='C2', label='He II')
+ax1.vlines(lines_CII, 0, ymax, color='C3', label='C II')
+ax1.vlines(lines_NII, 0, ymax, color='C4', label='N II')
+ax1.vlines(lines_OII, 0, ymax, color='C5', label='O II')
+ax1.vlines(lines_MgII, 0, ymax, color='C6', label='Mg II')
+# C7 is grey, reserved for atmosphere...
+ax1.vlines(lines_SiII, 0, ymax, color='C8', label='Si II')
+ax1.vlines(lines_CaII, 0, ymax, color='C9', label='Ca II')
 
-plt.figure(2, figsize=(12, 5))
-plt.clf()
-plt.plot(wave_1_bin5,
-         extinction.remove(ext_bin5, flux_1_bin5),
-         lw=0.5,
-         label='R1000B epoch 1')
-plt.plot(wave_1_bin5,
-         extinction.remove(ext_bin5, flux_2_bin5),
-         lw=0.5,
-         label='R1000B epoch 2')
-plt.plot(wave_1_bin5,
-         extinction.remove(ext_bin5,
-                           np.nanmean((flux_1_bin5, flux_2_bin5), axis=0)),
-         color='black',
-         label='R1000B average')
-plt.plot(wave_r2500u_1_bin5,
-         extinction.remove(ext_r2500u_bin5, flux_r2500u_1_bin5),
-         lw=0.5,
-         label='R2500U epoch 1')
-plt.plot(wave_r2500u_1_bin5,
-         extinction.remove(ext_r2500u_bin5, flux_r2500u_2_bin5),
-         lw=0.5,
-         label='R2500U epoch 2')
-plt.plot(wave_r2500u_1_bin5,
-         extinction.remove(
-             ext_r2500u_bin5,
-             np.nanmean((flux_r2500u_1_bin5, flux_r2500u_2_bin5), axis=0)),
-         color='purple',
-         label='R2500U average')
-plt.vlines(lines_H, 0, ymax, color='blue', label='H')
-plt.vlines(lines_HeI, 0, ymax, color='red', label='He I')
-plt.vlines(lines_HeII, 0, ymax, color='green', label='He II')
-plt.xlim(3400, 8000)
-plt.ylim(0, 8e-14)
-plt.xlabel('Wavelength / A')
-plt.ylabel('Flux / ( erg / cm / cm / s / A)')
-plt.grid()
-plt.legend()
-plt.tight_layout()
-plt.show()
-plt.savefig('ZTF_BLAP_01_GTC_bin5.png')
+ax1.set_xlim(3800, 4600)
+ax1.set_ylim(1.5e-15, 6.5e-15)
+ax1.set_xlabel('Wavelength / A')
+ax1.set_ylabel('Flux / ( erg / cm / cm / s / A)')
+ax1.grid()
+ax1.legend(loc='upper right', ncol=2)
 
-np.save('wavelength_R1000B', wave_1_bin2)
+ax2.plot(
+    wave_1,
+    extinction.remove(ext_bin1, np.nanmean(
+        (flux_1_bin1, flux_2_bin1), axis=0)) * 1.35,
+    color='0.2',
+    label='R1000B average')
+ax2.plot(wave_1,
+         extinction.remove(ext_bin1, flux_1_bin1) * 1.35,
+         lw=0.5,
+         label='Epoch 1')
+ax2.plot(wave_1,
+         extinction.remove(ext_bin1, flux_2_bin1) * 1.35,
+         lw=0.5,
+         label='Epoch 2')
+ax2.vlines(lines_H, 0, ymax, color='C0', label='H')
+ax2.vlines(lines_HeI, 0, ymax, color='C1', label='He I')
+ax2.vlines(lines_HeI_highres, 0, ymax, color='C1')
+ax2.vlines(lines_HeII, 0, ymax, color='C2', label='He II')
+ax2.vlines(lines_CII, 0, ymax, color='C3', label='C II')
+ax2.vlines(lines_NII, 0, ymax, color='C4', label='N II')
+ax2.vlines(lines_OII, 0, ymax, color='C5', label='O II')
+ax2.vlines(lines_MgII, 0, ymax, color='C6', label='Mg II')
+# C7 is grey, reserved for atmosphere...
+ax2.vlines(lines_SiII, 0, ymax, color='C8', label='Si II')
+
+ax2.vlines(lines_OI_atm,
+           0,
+           ymax,
+           color='grey',
+           alpha=0.25,
+           lw=8,
+           label='Atmosphere')
+ax2.vlines(lines_O2_atm, 0, ymax, color='grey', alpha=0.25, lw=8)
+ax2.vlines(lines_OH_atm, 0, ymax, color='grey', alpha=0.25, lw=8)
+ax2.vlines(lines_H2O_atm, 0, ymax, color='grey', alpha=0.25, lw=8)
+
+ax2.set_xlim(4600, 7800)
+ax2.set_ylim(0.0, 3.5e-15)
+ax2.set_xlabel('Wavelength / A')
+ax2.set_ylabel('Flux / ( erg / cm / cm / s / A)')
+ax2.grid()
+ax2.legend(ncol=2)
+
+plt.subplots_adjust(left=0.05, bottom=0.06, right=0.98, top=0.98, hspace=0.15)
+
+plt.savefig('ZTF_BLAP_01_GTC.png')
+plt.savefig('ZTF_BLAP_01_GTC.pdf')
+
+np.save('r1000b_1.npy',
+        np.column_stack((wave_1, extinction.remove(ext_bin1, flux_1_bin1))))
+np.save('r1000b_2.npy',
+        np.column_stack((wave_1, extinction.remove(ext_bin1, flux_2_bin1))))
+
 np.save(
-    'flux_R1000U',
-    extinction.remove(ext_bin2, np.nanmean((flux_1_bin2, flux_2_bin2),
-                                           axis=0)))
-
-np.save('wavelength_R2500U', wave_r2500u_1_bin2)
+    'r2000u_1.npy',
+    np.column_stack(
+        (wave_r2500u_1, extinction.remove(ext_r2500u_bin1,
+                                          flux_r2500u_1_bin1))))
 np.save(
-    'flux_R2500U',
-    extinction.remove(
-        ext_r2500u_bin2,
-        np.nanmean((flux_r2500u_1_bin2, flux_r2500u_2_bin2), axis=0)))
+    'r2000u_2.npy',
+    np.column_stack(
+        (wave_r2500u_1, extinction.remove(ext_r2500u_bin1,
+                                          flux_r2500u_2_bin1))))

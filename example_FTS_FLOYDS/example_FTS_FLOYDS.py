@@ -5,38 +5,32 @@ from astropy.io import fits
 from aspired import spectral_reduction
 from matplotlib import pyplot as plt
 from statsmodels.nonparametric.smoothers_lowess import lowess
-from scipy import signal
-from scipy import optimize
 
 # Line list
 atlas_Hg_red = [5460.7348, 5769.5982, 5790.6630]
 atlas_Ar_red = [
     6965.4307, 7067.2175, 7147.0416, 7272.9359, 7383.9805, 7503.8691,
     7635.1056, 7723.7599, 7948.1764, 8014.7857, 8115.3108, 8264.5225,
-    8424.6475, 8521.4422, 9122.9674, 9224.4992, 9657.7863
+    8424.6475, 8521.4422, 8667.944, 9122.9674, 9224.4992, 9354.220, 9657.7863,
+    9784.503
 ]
 element_Hg_red = ['Hg'] * len(atlas_Hg_red)
 element_Ar_red = ['Ar'] * len(atlas_Ar_red)
 
-atlas_Ar_blue = [4158.590, 4200.674]
+atlas_Ar_blue = [4158.590, 4200.674, 4272.169, 4300.101, 4510.733]
 atlas_Hg_blue = [
-    3650.153, 4046.563, 4077.8314, 4358.328, 5460.7348, 5769.5982, 5790.663
+    3650.153, 4046.563, 4077.8314, 4358.328, 5460.7348, 5769.598, 5790.663
 ]
-atlas_Zn_blue = []
+atlas_Zn_blue = [4722.1569]
 element_Hg_blue = ['Hg'] * len(atlas_Hg_blue)
+element_Ar_blue = ['Ar'] * len(atlas_Ar_blue)
 element_Zn_blue = ['Zn'] * len(atlas_Zn_blue)
 
 # Set the frame
 red_spatial_mask = np.arange(0, 330)
 blue_spatial_mask = np.arange(335, 512)
-red_spec_mask = np.arange(0, 1900)
+red_spec_mask = np.arange(0, 1800)
 blue_spec_mask = np.arange(500, 2060)
-
-
-def flux_diff(ratio, a, b):
-    diff = a * ratio - b
-    mask = diff < np.nanpercentile(diff, 95)
-    return np.nansum(diff[mask]**2.)
 
 
 def extract_floyds(light_fits,
@@ -78,13 +72,13 @@ def extract_floyds(light_fits,
 
     # Get the trace to rectify the image
     red.ap_trace(nspec=1,
-                 ap_faint=15,
-                 percentile=25,
+                 ap_faint=20,
+                 percentile=10,
                  trace_width=50,
                  shift_tol=35,
                  fit_deg=5,
-                 display=True)
-    red.compute_rectification(upsample_factor=10, coeff=coeff_red)
+                 display=False)
+    red.get_rectification(upsample_factor=5, coeff=coeff_red, display=True)
     red.apply_rectification()
     # Need to store the traces for fringe correction before overwriting them
     # with the new traces
@@ -92,32 +86,34 @@ def extract_floyds(light_fits,
     trace_sigma_red = copy.deepcopy(red.spectrum_list[0].trace_sigma)
 
     # Get the trace again for the rectified image and then extract
-    red.ap_trace(nspec=1, percentile=25, trace_width=20, fit_deg=5, display=False)
-    red.ap_extract(apwidth=10, spec_id=0, display=True)
+    red.ap_trace(nspec=1,
+                 ap_faint=20,
+                 percentile=10,
+                 trace_width=20,
+                 fit_deg=3,
+                 display=False)
+    red.ap_extract(apwidth=10, spec_id=0, display=False)
 
     # Do the same with the blue
     blue.ap_trace(nspec=1,
-                  ap_faint=15,
-                  percentile=30,
+                  ap_faint=10,
+                  percentile=10,
                   trace_width=20,
                   shift_tol=50,
                   fit_deg=5,
-                  display=True)
-    blue.compute_rectification(upsample_factor=10,
-                               bin_size=7,
-                               n_bin=[3, 1],
-                               coeff=coeff_blue)
+                  display=False)
+    blue.get_rectification(upsample_factor=5, coeff=coeff_blue, display=True)
     blue.apply_rectification()
 
     blue.ap_trace(nspec=1,
-                  percentile=30,
+                  percentile=10,
                   trace_width=20,
-                  fit_deg=5,
-                  display=True)
-    blue.ap_extract(apwidth=10, display=True)
+                  fit_deg=3,
+                  display=False)
+    blue.ap_extract(apwidth=10, display=False)
 
-    red.extract_arc_spec(spec_width=15, display=True)
-    blue.extract_arc_spec(spec_width=15, display=True)
+    red.extract_arc_spec(spec_width=15, display=False)
+    blue.extract_arc_spec(spec_width=15, display=False)
 
     # Get the blue and red traces for fringe removal
     trace_red_rectified = red.spectrum_list[0].trace
@@ -139,47 +135,28 @@ def extract_floyds(light_fits,
 
     # Force extraction from the flat for fringe correction
     flat.add_trace(trace_red, trace_sigma_red)
-    flat.compute_rectification(coeff=coeff_red)
+    flat.get_rectification(coeff=red.rec_coeff)
     flat.apply_rectification()
     flat.add_trace(trace_red_rectified, trace_sigma_red_rectified)
-    flat.ap_extract(apwidth=10, skywidth=0, display=True)
-
-    fringe_count = flat.spectrum_list[0].count
-
-    fringe_continuum = lowess(fringe_count,
-                              np.arange(len(fringe_count)),
-                              frac=0.02,
-                              return_sorted=False)
-    global fringe_normalised
-    fringe_normalised = fringe_count - fringe_continuum
-
-    red_count = red.spectrum_list[0].count
-    red_continuum = lowess(red_count,
-                           np.arange(len(red_count)),
-                           frac=0.1,
-                           return_sorted=False)
-    global red_normalised
-    red_normalised = red_count - red_continuum
-
-    # find the shift
-    signal.correlate(fringe_normalised, red_normalised)
-
-    factor_mean = optimize.minimize(
-        flux_diff,
-        1.0,
-        args=((fringe_normalised[800:1600] - 1) * red_continuum[800:1600] /
-              fringe_continuum[800:1600], red_normalised[800:1600] - 1)).x
-
-    fringe_correction = (fringe_normalised * red_continuum / fringe_continuum *
-                         factor_mean)
-
-    # Apply the flat correction
-    red.spectrum_list[0].count -= fringe_correction
+    flat.ap_extract(apwidth=10, skywidth=0, display=False)
 
     return red, blue, flat
 
 
-def calibrate_red(science, standard, standard_name):
+# only red specs are used
+def fringe_correction(target, flat):
+    flat_count = flat.spectrum_list[0].count
+    flat_continuum = lowess(flat_count,
+                            np.arange(len(flat_count)),
+                            frac=0.04,
+                            return_sorted=False)
+    flat_continuum_divided = flat_count / flat_continuum
+    flat_continuum_divided[:500] = 1.0
+    # Apply the flat correction
+    target.spectrum_list[0].count /= flat_continuum_divided
+
+
+def calibrate_red(science, standard, standard_name, standard_library=None):
     #
     # Start handling 1D spectra here
     #
@@ -193,13 +170,9 @@ def calibrate_red(science, standard, standard_name):
 
     # Find the peaks of the arc
     red_onedspec.find_arc_lines(display=True,
-                                percentile=0.5,
-                                prominence=1,
-                                stype='science')
-    red_onedspec.find_arc_lines(display=True,
-                                percentile=0.5,
-                                prominence=1,
-                                stype='standard')
+                                prominence=0.25,
+                                top_n_peaks=25,
+                                stype='science+standard')
 
     # Configure the wavelength calibrator
     red_onedspec.initialise_calibrator(stype='science+standard')
@@ -212,16 +185,18 @@ def calibrate_red(science, standard, standard_name):
                                 stype='science+standard')
 
     red_onedspec.set_hough_properties(num_slopes=2000,
-                                      xbins=100,
-                                      ybins=100,
-                                      min_wavelength=4500,
-                                      max_wavelength=10500,
+                                      xbins=200,
+                                      ybins=200,
+                                      min_wavelength=4750,
+                                      max_wavelength=11750,
                                       stype='science+standard')
-    red_onedspec.set_ransac_properties(stype='science+standard')
+    red_onedspec.set_ransac_properties(sample_size=8,
+                                       minimum_matches=15,
+                                       stype='science+standard')
     red_onedspec.do_hough_transform(stype='science+standard')
 
     # Solve for the pixel-to-wavelength solution
-    red_onedspec.fit(max_tries=2000, stype='science+standard', display=True)
+    red_onedspec.fit(max_tries=5000, stype='science+standard', display=True)
 
     # Apply the wavelength calibration and display it
     red_onedspec.apply_wavelength_calibration(wave_start=5000,
@@ -229,40 +204,51 @@ def calibrate_red(science, standard, standard_name):
                                               wave_bin=1,
                                               stype='science+standard')
 
-    red_onedspec.load_standard(standard_name)
-    red_onedspec.compute_sensitivity()
+    red_onedspec.load_standard(standard_name, standard_library)
+    red_onedspec.get_sensitivity(mask_range=[[6850, 6960], [7576, 7680]])
+    red_onedspec.inspect_sensitivity()
     red_onedspec.apply_flux_calibration()
+    red_onedspec.get_telluric_profile()
+    red_onedspec.inspect_telluric_profile()
     red_onedspec.apply_telluric_correction()
+    red_onedspec.apply_atmospheric_extinction_correction()
 
     return red_onedspec
 
 
-def calibrate_blue(science, standard, standard_name):
+def calibrate_blue(science, standard, standard_name, standard_library=None):
     # Blue spectrum here
     blue = spectral_reduction.OneDSpec(log_level='INFO', log_file_name=None)
 
     blue.from_twodspec(standard, stype='standard')
     blue.from_twodspec(science, stype='science')
 
-    blue.find_arc_lines(prominence=1, display=True, stype='science')
-    blue.find_arc_lines(prominence=1, display=True, stype='standard')
+    blue.find_arc_lines(prominence=0.25,
+                        top_n_peaks=10,
+                        display=True,
+                        stype='science+standard')
 
     blue.initialise_calibrator(stype='science+standard')
 
     blue.add_user_atlas(elements=element_Hg_blue,
                         wavelengths=atlas_Hg_blue,
                         stype='science+standard')
+    blue.add_user_atlas(elements=element_Ar_blue,
+                        wavelengths=atlas_Ar_blue,
+                        stype='science+standard')
     blue.add_user_atlas(elements=element_Zn_blue,
                         wavelengths=atlas_Zn_blue,
                         stype='science+standard')
 
-    blue.set_hough_properties(num_slopes=5000,
+    blue.set_hough_properties(num_slopes=2000,
                               xbins=200,
                               ybins=200,
                               min_wavelength=3000,
                               max_wavelength=6000,
                               stype='science+standard')
-    blue.set_ransac_properties(filter_close=True, stype='science+standard')
+    blue.set_ransac_properties(sample_size=8,
+                               filter_close=True,
+                               stype='science+standard')
     blue.do_hough_transform(stype='science+standard')
 
     # Solve for the pixel-to-wavelength solution
@@ -270,12 +256,13 @@ def calibrate_blue(science, standard, standard_name):
 
     # Apply the wavelength calibration and display it
     blue.apply_wavelength_calibration(wave_start=3200,
-                                      wave_end=5500,
+                                      wave_end=5600,
                                       wave_bin=1,
                                       stype='science+standard')
 
-    blue.load_standard(standard_name)
-    blue.compute_sensitivity()
+    blue.load_standard(standard_name, standard_library)
+    blue.get_sensitivity()
+    blue.inspect_sensitivity()
     blue.apply_flux_calibration()
 
     return blue
@@ -315,11 +302,17 @@ AT2019mtw_twodspec_red, AT2019mtw_twodspec_blue, AT2019mtw_twodspec_flat =\
         science_arc_fits)
 
 standard_name = 'l74546a'
+standard_library = 'irafredcal'
 
+# Fringe Correction
+fringe_correction(AT2019mtw_twodspec_red, AT2019mtw_twodspec_flat)
+fringe_correction(standard_twodspec_red, standard_twodspec_flat)
+
+# Start working in 1D
 onedspec_blue = calibrate_blue(AT2019mtw_twodspec_blue, standard_twodspec_blue,
                                standard_name)
 onedspec_red = calibrate_red(AT2019mtw_twodspec_red, standard_twodspec_red,
-                             standard_name)
+                             standard_name, standard_library)
 
 # Inspect
 onedspec_blue.inspect_reduced_spectrum(wave_min=3000,
@@ -340,7 +333,7 @@ spec_length = len(official_fits.data[0][0])
 wave = np.linspace(wave_start, wave_start + wave_bin * spec_length,
                    spec_length)
 
-LCO_unit = 1e-19 * 0.8
+LCO_unit = 1e-20
 
 plt.figure(100, figsize=(16, 8))
 plt.clf()
@@ -392,7 +385,7 @@ wave_start2 = float(
 spec_length2 = len(snex_fits.data[0][0])
 wave2 = np.linspace(wave_start2, wave_start2 + wave_bin2 * spec_length2,
                     spec_length2) / (1 + redshift)
-plt.plot(wave2, snex_fits.data[0][0] * 30, color='red', label='SNEx')
+plt.plot(wave2, snex_fits.data[0][0] * 4, color='red', label='SNEx')
 
 plt.xlim(3000., 10000.)
 plt.ylim(

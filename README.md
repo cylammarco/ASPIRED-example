@@ -21,6 +21,9 @@ Example reduction with ASPIRED
 9. [x] User supplied sensitivity curve.
 10. [x] Flux calibration for user supplied wavelength calibrated science and standard 1D spectra.
 
+### Standard Star
+11. [x] Compare standard stars.
+
 ## SPRAT - Liverpool Telescope
 
 A jupyter notebook showing a full reduction of a SPRAT spectrum of the M dwarf [LHS6328](http://simbad.u-strasbg.fr/simbad/sim-id?Ident=LHS++6328), calibrated against the standard star [Hiltner 102](http://www.ing.iac.es/Astronomy/observing/manuals/html_manuals/tech_notes/tn065-100/h102.html) and with a Xe arc lamp. Telluric absorptions are corrected.

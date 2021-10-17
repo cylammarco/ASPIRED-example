@@ -32,9 +32,6 @@ lhs6328_twodspec = spectral_reduction.TwoDSpec(lhs6328_frame,
                                                cosmicray=True,
                                                readnoise=5.7,
                                                gain=2.45,
-                                               sigclip=0.1,
-                                               psfsize=11.0,
-                                               psffwhm=1.5,
                                                psfmodel='gaussy',
                                                fsmode='convolve',
                                                cleantype='medmask',
@@ -44,7 +41,7 @@ lhs6328_twodspec = spectral_reduction.TwoDSpec(lhs6328_frame,
 lhs6328_twodspec.ap_trace(
     nspec=2,
     display=True,
-    filename='example_output/example_01_a_science_aptrace',
+    filename='example_output/example_07_a_science_aptrace',
     save_fig=True)
 
 # Optimal extraction to get the LSF for force extraction below
@@ -54,7 +51,7 @@ lhs6328_twodspec.ap_extract(
     skydeg=1,
     optimal=True,
     display=True,
-    filename='example_output/example_01_a_science_apextract',
+    filename='example_output/example_07_a_science_apextract',
     save_fig=True)
 
 # Standard frame
@@ -76,7 +73,7 @@ hilt102_twodspec.ap_trace(
     nspec=1,
     resample_factor=10,
     display=False,
-    filename='example_output/example_01_a_standard_aptrace',
+    filename='example_output/example_07_a_standard_aptrace',
     save_fig=True)
 
 hilt102_twodspec.ap_extract(
@@ -86,18 +83,18 @@ hilt102_twodspec.ap_extract(
     skydeg=1,
     optimal=True,
     display=False,
-    filename='example_output/example_01_a_standard_apextract',
+    filename='example_output/example_07_a_standard_apextract',
     save_fig=True)
 
 # Extract the 1D arc by aperture sum of the traces provided
 lhs6328_twodspec.extract_arc_spec(
     display=False,
-    filename='example_output/example_01_a_arc_spec_science',
+    filename='example_output/example_07_a_arc_spec_science',
     save_fig=True)
 
 hilt102_twodspec.extract_arc_spec(
     display=False,
-    filename='example_output/example_01_a_arc_spec_standard',
+    filename='example_output/example_07_a_arc_spec_standard',
     save_fig=True)
 
 # Handle 1D Science spectrum
@@ -111,15 +108,16 @@ lhs6328_onedspec.find_arc_lines(
     prominence=5.,
     display=False,
     stype='science+standard',
-    filename='example_output/example_01_a_arc_lines',
+    filename='example_output/example_07_a_arc_lines',
     save_fig=True)
 
 # Configure the wavelength calibrator
 lhs6328_onedspec.initialise_calibrator(stype='science+standard')
 lhs6328_onedspec.set_hough_properties(xbins=100,
                                       ybins=100,
-                                      min_wavelength=3500,
+                                      min_wavelength=3800,
                                       max_wavelength=8200,
+                                      range_tolerance=250,
                                       stype='science+standard')
 
 lhs6328_onedspec.set_ransac_properties(filter_close=True,
@@ -141,13 +139,13 @@ lhs6328_onedspec.apply_wavelength_calibration(stype='science+standard')
 # Get the standard from the library
 lhs6328_onedspec.load_standard(target='hiltner102')
 
-lhs6328_onedspec.compute_sensitivity(k=3, mask_fit_size=1)
+lhs6328_onedspec.get_sensitivity(k=3, mask_fit_size=1)
 lhs6328_onedspec.inspect_sensitivity(
-    save_fig=True, filename='example_output/example_01_a_sensitivity')
+    save_fig=True, filename='example_output/example_07_a_sensitivity')
 
 lhs6328_onedspec.apply_flux_calibration(stype='science+standard')
 
 lhs6328_onedspec.inspect_reduced_spectrum(
     stype='science',
     save_fig=True,
-    filename='example_output/example_01_a_science_spectrum')
+    filename='example_output/example_07_a_science_spectrum')

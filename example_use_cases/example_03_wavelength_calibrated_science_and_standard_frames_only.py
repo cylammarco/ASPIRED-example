@@ -43,7 +43,7 @@ lhs6328_onedspec.add_wavelength_resampled(wave, stype='science+standard')
 # Get the standard flux from literature
 lhs6328_onedspec.load_standard(target='hiltner102')
 
-lhs6328_onedspec.compute_sensitivity(k=3)
+lhs6328_onedspec.get_sensitivity(k=3)
 lhs6328_onedspec.inspect_sensitivity()
 lhs6328_onedspec.apply_flux_calibration(stype='science')
 
