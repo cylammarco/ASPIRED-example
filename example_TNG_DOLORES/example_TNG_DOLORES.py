@@ -99,12 +99,12 @@ hd93521_frame_lrb.reduce()
 
 hd93521_twodspec_lrr = spectral_reduction.TwoDSpec(hd93521_frame_lrr,
                                                    spatial_mask=spatial_mask,
-                                                   cosmicray=True,
+                                                   cosmicray=False,
                                                    log_level='INFO',
                                                    log_file_name=None)
 hd93521_twodspec_lrb = spectral_reduction.TwoDSpec(hd93521_frame_lrb,
                                                    spatial_mask=spatial_mask,
-                                                   cosmicray=True,
+                                                   cosmicray=False,
                                                    log_level='INFO',
                                                    log_file_name=None)
 
@@ -249,9 +249,9 @@ ztf19aamsetj_onedspec_lrb1.apply_wavelength_calibration(
 ztf19aamsetj_onedspec_lrb2.apply_wavelength_calibration(
     stype='science+standard')
 ztf19aamsetj_onedspec_lrr1.apply_wavelength_calibration(
-    wave_start=5250, stype='science+standard')
+    stype='science+standard')
 ztf19aamsetj_onedspec_lrr2.apply_wavelength_calibration(
-    wave_start=5250, stype='science+standard')
+    stype='science+standard')
 
 # Get the standard from the library
 ztf19aamsetj_onedspec_lrb1.load_standard(target='hd93521')
@@ -298,6 +298,31 @@ ztf19aamsetj_onedspec_lrr1.save_csv(output='wavelength+flux',
 ztf19aamsetj_onedspec_lrr2.save_csv(output='wavelength+flux',
                                     filename='ztf19aamsetj_lrr2')
 
+""" v0.5
+ztf19aamsetj_onedspec_lrr1.resample()
+ztf19aamsetj_onedspec_lrr2.resample()
+ztf19aamsetj_onedspec_lrb1.resample()
+ztf19aamsetj_onedspec_lrb2.resample()
+
+wave1 = ztf19aamsetj_onedspec_lrb1.science_spectrum_list[0].wave_resampled
+flux1 = ztf19aamsetj_onedspec_lrb1.science_spectrum_list[0].flux_resampled_atm_ext_corrected
+flux_err1 = ztf19aamsetj_onedspec_lrb1.science_spectrum_list[0].flux_err_resampled_atm_ext_corrected
+
+wave2 = ztf19aamsetj_onedspec_lrb2.science_spectrum_list[0].wave_resampled
+flux2 = ztf19aamsetj_onedspec_lrb2.science_spectrum_list[0].flux_resampled_atm_ext_corrected
+flux_err2 = ztf19aamsetj_onedspec_lrb2.science_spectrum_list[0].flux_err_resampled_atm_ext_corrected
+
+flux2_resampled, flux_err2_resampled = spectres(wave1, wave2, flux2, flux_err2)
+
+wave3 = ztf19aamsetj_onedspec_lrr1.science_spectrum_list[0].wave_resampled
+flux3 = ztf19aamsetj_onedspec_lrr1.science_spectrum_list[0].flux_resampled_atm_ext_corrected
+flux_err3 = ztf19aamsetj_onedspec_lrr1.science_spectrum_list[0].flux_err_resampled_atm_ext_corrected
+
+wave4 = ztf19aamsetj_onedspec_lrr2.science_spectrum_list[0].wave_resampled
+flux4 = ztf19aamsetj_onedspec_lrr2.science_spectrum_list[0].flux_resampled_atm_ext_corrected
+flux_err4 = ztf19aamsetj_onedspec_lrr2.science_spectrum_list[0].flux_err_resampled_atm_ext_corrected
+"""
+
 wave1 = ztf19aamsetj_onedspec_lrb1.science_spectrum_list[0].wave_resampled
 flux1 = ztf19aamsetj_onedspec_lrb1.science_spectrum_list[0].flux_resampled
 flux_err1 = ztf19aamsetj_onedspec_lrb1.science_spectrum_list[0].flux_err_resampled
@@ -324,7 +349,7 @@ plt.plot(wave1, flux1)
 plt.plot(wave2, flux2)
 plt.plot(wave3, flux3)
 plt.plot(wave4, flux4)
-plt.ylim(0, 1e-16)
+plt.ylim(0, 8e-13)
 plt.grid()
 plt.xlabel('Wavelength / A')
 plt.ylabel('Flux')
@@ -338,7 +363,7 @@ plt.plot(wave1, (flux1 / flux_err1 + flux2_resampled / flux_err2_resampled) /
 plt.plot(
     wave3, 2 * (flux3 / flux_err3 + flux4_resampled / flux_err4_resampled) /
     (1 / flux_err3 + 1 / flux_err4_resampled))
-plt.ylim(0, 1e-16)
+plt.ylim(0, 8e-13)
 plt.grid()
 plt.xlabel('Wavelength / A')
 plt.ylabel('Flux')
@@ -363,8 +388,8 @@ flux2_coadd, flux_err2_coadd = spectres(wave_coadd, wave2, flux2, flux_err2)
 flux3_coadd, flux_err3_coadd = spectres(wave_coadd, wave3, flux3, flux_err3)
 flux4_coadd, flux_err4_coadd = spectres(wave_coadd, wave4, flux4, flux_err4)
 
-flux3_coadd *= 2
-flux4_coadd *= 2
+#flux3_coadd *= 2
+#flux4_coadd *= 2
 
 masked_flux1_coadd = np.ma.masked_array(flux1_coadd, ~np.isfinite(flux1_coadd))
 masked_flux2_coadd = np.ma.masked_array(flux2_coadd, ~np.isfinite(flux2_coadd))
@@ -390,9 +415,9 @@ plt.figure(3, figsize=(12, 6))
 plt.clf()
 plt.plot(wave_coadd, flux_coadd, label='Weighted Mean')
 plt.plot(wave_coadd_bin2,
-         flux_coadd_bin2 - 2e-17,
-         label='Weighted Mean (bin 2, shifted by 2E-17)')
-plt.ylim(0, 1e-16)
+         flux_coadd_bin2 + 1e-13,
+         label='Weighted Mean (bin 2, shifted by 2E-13)')
+plt.ylim(0, 4.5e-13)
 plt.grid()
 plt.xlabel('Wavelength / A')
 plt.ylabel('Flux')

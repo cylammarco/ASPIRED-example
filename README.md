@@ -1,6 +1,8 @@
 # ASPIRED-example
 Example reduction with ASPIRED
 
+**Please use the `tag` to view the example scripts for the version of ASPIRED you are using.**
+
 ## Use cases
 
 ### Spectrum - full reduction
@@ -40,6 +42,6 @@ A plain Python script to show a full reduction of the red and blue arm of [ZTF19
 
 A plain Python script to show a full reduction of the R1000B and R2500U spectra of ZTF-BLAP-01, calibrated with a Hg+Ar+Ne lamp and Hg+Ar+Xe lamp, respectively. The flux calibration was performed with [Feige 110](http://www.ing.iac.es/Astronomy/observing/manuals/html_manuals/tech_notes/tn065-100/f110.html). Both interstellar and atmospheric extinctions are corrected.
 
-## FLOYDS - Faulkes South Telescope
+## FLOYDS - Faulkes Telescope South
 
 A plain Python script to show a full reduction of the red and blue FLOYDS spectra of [AT2019MTW](https://www.wis-tns.org/object/2019mtw), calibrated against [L 745-46A](http://www.ing.iac.es/Astronomy/observing/manuals/html_manuals/tech_notes/tn065-100/l745.html). 2D distortion correction is applied to straighten the spectra; the 1D fringe pattern is subtracted from the red spectrum; and the Telluric absorptions are corrected.
