@@ -1,14 +1,14 @@
 import copy
 import os
 
+import extinction
 import numpy as np
 from aspired import spectral_reduction
-from astroscrappy import detect_cosmics
 from astropy import units as u
 from astropy.io import fits
 from astropy.nddata import CCDData
+from astroscrappy import detect_cosmics
 from ccdproc import Combiner
-import extinction
 from matplotlib import pyplot as plt
 from spectres import spectres
 
@@ -400,7 +400,7 @@ science_1_onedspec.do_hough_transform()
 
 # Solve for the pixel-to-wavelength solution
 science_1_onedspec.fit(
-    max_tries=2000, fit_deg=4, stype="science+standard", display=True
+    max_tries=1000, fit_deg=4, stype="science+standard", display=True
 )
 
 # Apply the wavelength calibration and display it
@@ -408,9 +408,9 @@ science_1_onedspec.apply_wavelength_calibration(stype="science+standard")
 
 # Get the standard from the library
 science_1_onedspec.load_standard(target="Feige110", library="esoxshooter")
-science_1_onedspec.get_continuum(lowess_frac=0.2)
+science_1_onedspec.get_count_continuum(frac=0.2)
 science_1_onedspec.get_sensitivity(
-    k=3, method="interpolate", mask_fit_size=1, lowess_frac=0.025
+    k=3, method="interpolate", mask_fit_size=1, frac=0.025
 )
 science_1_onedspec.inspect_sensitivity()
 
@@ -450,7 +450,7 @@ science_2_onedspec.do_hough_transform()
 
 # Solve for the pixel-to-wavelength solution
 science_2_onedspec.fit(
-    max_tries=2000, fit_deg=4, stype="science+standard", display=True
+    max_tries=1000, fit_deg=4, stype="science+standard", display=True
 )
 
 # Apply the wavelength calibration and display it
@@ -458,10 +458,10 @@ science_2_onedspec.apply_wavelength_calibration(stype="science+standard")
 
 # Get the standard from the library
 science_2_onedspec.load_standard(target="Feige110", library="esoxshooter")
-science_2_onedspec.get_continuum(lowess_frac=0.2)
+science_2_onedspec.get_count_continuum(frac=0.2)
 
 science_2_onedspec.get_sensitivity(
-    k=3, method="interpolate", mask_fit_size=1, lowess_frac=0.025
+    k=3, method="interpolate", mask_fit_size=1, frac=0.025
 )
 science_2_onedspec.inspect_sensitivity()
 
@@ -478,23 +478,18 @@ science_2_onedspec.inspect_reduced_spectrum(
     save_fig=True, filename="standard_2", fig_type="png", stype="standard"
 )
 
-#science_1_onedspec.resample()
-#science_2_onedspec.resample()
+science_1_onedspec.resample()
+science_2_onedspec.resample()
 
 wave_1 = science_1_onedspec.science_spectrum_list[0].wave_resampled
 wave_1_bin2 = wave_1[::2]
 wave_1_bin5 = wave_1[::5]
 wave_1_bin10 = wave_1[::10]
 
-flux_1 = science_1_onedspec.science_spectrum_list[
-    0
-].flux_resampled
 
-""" for v0.5
 flux_1 = science_1_onedspec.science_spectrum_list[
     0
 ].flux_resampled_atm_ext_corrected
-"""
 
 flux_1_bin1 = flux_1
 flux_1_bin2 = spectres(wave_1_bin2, wave_1, flux_1)
@@ -504,13 +499,8 @@ flux_1_bin10 = spectres(wave_1_bin10, wave_1, flux_1)
 wave_2 = science_2_onedspec.science_spectrum_list[0].wave_resampled
 flux_2 = science_2_onedspec.science_spectrum_list[
     0
-].flux_resampled
-
-""" for v0.5
-flux_2 = science_2_onedspec.science_spectrum_list[
-    0
 ].flux_resampled_atm_ext_corrected
-"""
+
 # note this is resampled to match wave_1s
 flux_2_bin1 = spectres(wave_1, wave_2, flux_2)
 flux_2_bin2 = spectres(wave_1_bin2, wave_2, flux_2)
@@ -786,9 +776,9 @@ science_r2500u_1_onedspec.apply_wavelength_calibration(
 science_r2500u_1_onedspec.load_standard(
     target="Feige110", library="esoxshooter"
 )
-science_r2500u_1_onedspec.get_continuum(lowess_frac=0.5)
+science_r2500u_1_onedspec.get_count_continuum(frac=0.5)
 science_r2500u_1_onedspec.get_sensitivity(
-    k=3, method="interpolate", mask_fit_size=1, lowess_frac=0.025
+    k=3, method="interpolate", mask_fit_size=1, frac=0.025
 )
 science_r2500u_1_onedspec.inspect_sensitivity()
 
@@ -840,9 +830,9 @@ science_r2500u_2_onedspec.apply_wavelength_calibration(
 science_r2500u_2_onedspec.load_standard(
     target="Feige110", library="esoxshooter"
 )
-science_r2500u_2_onedspec.get_continuum(lowess_frac=0.5)
+science_r2500u_2_onedspec.get_count_continuum(frac=0.5)
 science_r2500u_2_onedspec.get_sensitivity(
-    k=3, method="interpolate", mask_fit_size=1, lowess_frac=0.025
+    k=3, method="interpolate", mask_fit_size=1, frac=0.025
 )
 science_r2500u_2_onedspec.inspect_sensitivity()
 
@@ -857,8 +847,8 @@ science_r2500u_2_onedspec.inspect_reduced_spectrum(
 )
 
 
-#science_r2500u_1_onedspec.resample()
-#science_r2500u_2_onedspec.resample()
+science_r2500u_1_onedspec.resample()
+science_r2500u_2_onedspec.resample()
 
 wave_r2500u_1 = science_r2500u_1_onedspec.science_spectrum_list[
     0
@@ -869,12 +859,7 @@ wave_r2500u_1_bin10 = wave_r2500u_1[::10]
 
 flux_r2500u_1 = science_r2500u_1_onedspec.science_spectrum_list[
     0
-].flux_resampled
-""" for v0.5
-flux_r2500u_1 = science_r2500u_1_onedspec.science_spectrum_list[
-    0
 ].flux_resampled_atm_ext_corrected
-"""
 
 flux_r2500u_1_bin1 = flux_r2500u_1
 flux_r2500u_1_bin2 = spectres(wave_r2500u_1_bin2, wave_r2500u_1, flux_r2500u_1)
@@ -889,12 +874,7 @@ wave_r2500u_2 = science_r2500u_2_onedspec.science_spectrum_list[
 
 flux_r2500u_2 = science_r2500u_2_onedspec.science_spectrum_list[
     0
-].flux_resampled
-""" for v0.5
-flux_r2500u_2 = science_r2500u_2_onedspec.science_spectrum_list[
-    0
 ].flux_resampled_atm_ext_corrected
-"""
 
 # note this is resampled to match wave_1s
 flux_r2500u_2_bin1 = spectres(wave_r2500u_1, wave_r2500u_2, flux_r2500u_2)
@@ -946,7 +926,7 @@ ax1.vlines(lines_SiII, 0, ymax, color="C8", label="Si II")
 ax1.vlines(lines_CaII, 0, ymax, color="C9", label="Ca II")
 
 ax1.set_xlim(3600, 4600)
-ax1.set_ylim(1.0e-14, 6.0e-14)
+ax1.set_ylim(1.0e-15, 1.2e-14)
 ax1.set_xlabel("Wavelength / A")
 ax1.set_ylabel("Flux / ( erg / cm / cm / s / A)")
 ax1.grid()
@@ -954,7 +934,9 @@ ax1.legend(loc="upper right", ncol=2)
 
 ax2.plot(
     wave_1,
-    extinction.remove(ext_bin1, np.nanmean((flux_1_bin1, flux_2_bin1), axis=0)),
+    extinction.remove(
+        ext_bin1, np.nanmean((flux_1_bin1, flux_2_bin1), axis=0)
+    ),
     color="0.2",
     label="R1000B average",
 )
@@ -989,7 +971,7 @@ ax2.vlines(lines_OH_atm, 0, ymax, color="grey", alpha=0.25, lw=8)
 ax2.vlines(lines_H2O_atm, 0, ymax, color="grey", alpha=0.25, lw=8)
 
 ax2.set_xlim(3650, 7800)
-ax2.set_ylim(0.0, 0.75e-13)
+ax2.set_ylim(0.0, 4.0e-15)
 ax2.set_xlabel("Wavelength / A")
 ax2.set_ylabel("Flux / ( erg / cm / cm / s / A)")
 ax2.grid()
@@ -1010,13 +992,13 @@ np.save(
 )
 
 np.save(
-    "r2000u_1.npy",
+    "r1000u_1.npy",
     np.column_stack(
         (wave_r2500u_1, extinction.remove(ext_r2500u_bin1, flux_r2500u_1_bin1))
     ),
 )
 np.save(
-    "r2000u_2.npy",
+    "r1000u_2.npy",
     np.column_stack(
         (wave_r2500u_1, extinction.remove(ext_r2500u_bin1, flux_r2500u_2_bin1))
     ),

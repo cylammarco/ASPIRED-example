@@ -26,11 +26,11 @@ Example reduction with ASPIRED
 ### Standard Star
 11. [x] Compare standard stars.
 
-## SPRAT - Liverpool Telescope
+## SPRAT - Liverpool Telescope (with Jupyter Notebook)
 
 A jupyter notebook showing a full reduction of a SPRAT spectrum of the M dwarf [LHS6328](http://simbad.u-strasbg.fr/simbad/sim-id?Ident=LHS++6328), calibrated against the standard star [Hiltner 102](http://www.ing.iac.es/Astronomy/observing/manuals/html_manuals/tech_notes/tn065-100/h102.html) and with a Xe arc lamp. Telluric absorptions are corrected.
 
-## ISIS - William Herschel Telescope
+## ISIS - William Herschel Telescope (with Jupyter Notebook)
 
 A jupyter notebook showing a full reduction of the red arm of ISIS of [PSO J180.1536+62.5419](http://simbad.u-strasbg.fr/simbad/sim-id?Ident=%4015306489&Name=PSO%20J180.1536%2b62.5419&submit=submit), calibrated against [G93-48](https://www.eso.org/sci/observing/tools/standards/spectra/g93_48.html) and with a CuAr+CuNe arc lamp.
 
@@ -42,6 +42,6 @@ A plain Python script to show a full reduction of the red and blue arm of [ZTF19
 
 A plain Python script to show a full reduction of the R1000B and R2500U spectra of ZTF-BLAP-01, calibrated with a Hg+Ar+Ne lamp and Hg+Ar+Xe lamp, respectively. The flux calibration was performed with [Feige 110](http://www.ing.iac.es/Astronomy/observing/manuals/html_manuals/tech_notes/tn065-100/f110.html). Both interstellar and atmospheric extinctions are corrected.
 
-## FLOYDS - Faulkes Telescope South
+## FLOYDS - Faulkes Telescope South (with Jupyter Notebook)
 
 A plain Python script to show a full reduction of the red and blue FLOYDS spectra of [AT2019MTW](https://www.wis-tns.org/object/2019mtw), calibrated against [L 745-46A](http://www.ing.iac.es/Astronomy/observing/manuals/html_manuals/tech_notes/tn065-100/l745.html). 2D distortion correction is applied to straighten the spectra; the 1D fringe pattern is subtracted from the red spectrum; and the Telluric absorptions are corrected.
